@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expenses Tracker - Ledgerix</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="css/base.css">
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <!-- Page Specific Styles -->
+    <link rel="stylesheet" href="css/expenses-page.css">
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -73,14 +80,11 @@
                     <canvas id="expensesBarChart"></canvas>
                 </div>
 
-                <!-- Right Column: Donut Chart & Legend -->
+                <!-- Right Column: Donut Chart -->
                 <div class="expense-card donut-section">
                     <div class="donut-container">
                         <canvas id="expensesDonutChart"></canvas>
                         <button class="more-details-btn">More Details..</button>
-                    </div>
-                    <div class="chart-legend" id="categoryLegend">
-                        <!-- Populated by JS -->
                     </div>
                 </div>
             </div>

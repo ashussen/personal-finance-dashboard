@@ -19,20 +19,10 @@ function initBarChart() {
             labels: labels,
             datasets: [{
                 data: data,
-                backgroundColor: '#5465FF', // Using the Blue from mockup as it's a "Expense" tracker, might want to differentiate from "Income/Net Worth" Green
-                // But wait, the user said follow brand guidelines.
-                // Let's use a gradient or the Brand Green if it looks too off. 
-                // Actually, let's use a nice purple-blue that fits the "Ledgerix" modern theme, 
-                // OR better: The mockup shows Blue bars. The user said follow Brand Guidelines for "details of the color". 
-                // Brand Guidelines only show Green. 
-                // I will use the Brand Green #75FB90 for consistency, but maybe darken it or use a gradient?
-                // No, let's stick to the Blue in the mockup for the "Expenses" context to differentiate, 
-                // BUT since I must follow brand guidelines, I will use the Brand Green #75FB90.
-                backgroundColor: '#75FB90',
-                borderRadius: 20, // Fully rounded tops
-                borderSkipped: false, // Rounded at bottom too? Mockup looks like rounded top and bottom or just top.
-                // Mockup shows rounded top and bottom for the full bar look.
-                barThickness: 40,
+                backgroundColor: '#F0EFF2', // Light Gray Bars matching homepage
+                hoverBackgroundColor: '#75FB90', // Brand Green on hover
+                borderRadius: 4,
+                barPercentage: 0.6,
             }]
         },
         options: {
@@ -43,13 +33,27 @@ function initBarChart() {
                     display: false
                 },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#000000',
-                    titleColor: '#FFFFFF',
-                    bodyColor: '#FFFFFF',
+                    backgroundColor: '#FFFFFF',
+                    titleColor: '#000000',
+                    titleFont: {
+                        family: 'Urbanist',
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyColor: '#888888',
+                    bodyFont: {
+                        family: 'Urbanist',
+                        size: 12
+                    },
                     padding: 12,
                     cornerRadius: 8,
+                    borderColor: 'rgba(0,0,0,0.05)',
+                    borderWidth: 1,
                     displayColors: false,
+                    callbacks: {
+                        title: (context) => context[0].formattedValue,
+                        label: (context) => context.label
+                    }
                 }
             },
             scales: {
@@ -64,22 +68,20 @@ function initBarChart() {
                         drawBorder: false
                     },
                     ticks: {
-                        color: '#888888',
                         font: {
                             family: 'Urbanist',
-                            size: 14
-                        }
+                            size: 10
+                        },
+                        maxTicksLimit: 8
                     },
                     border: {
                         display: false
                     }
                 }
             },
-            layout: {
-                padding: {
-                    top: 20,
-                    bottom: 0
-                }
+            interaction: {
+                mode: 'index',
+                intersect: false,
             }
         }
     });
@@ -88,21 +90,15 @@ function initBarChart() {
 function initDonutChart() {
     const ctx = document.getElementById('expensesDonutChart').getContext('2d');
     
-    // Data from Mockup
+    // Data with shades of black/gray from brand guidelines
     const chartData = [
-        { label: 'Food & Grocery', value: 6156.00, color: '#5465FF' }, // Blue
-        { label: 'Investment', value: 5000.00, color: '#FFC107' },     // Yellow
-        { label: 'Shopping', value: 4356.00, color: '#27AE60' },       // Green (Darker)
-        { label: 'Travelling', value: 3670.00, color: '#9B59B6' },     // Purple
-        { label: 'Miscellaneous', value: 2749.00, color: '#E67E22' },  // Orange
-        { label: 'Bill & Subscription', value: 2162.00, color: '#00BCD4' } // Cyan
+        { label: 'Food & Grocery', value: 6156000, color: '#000000' },    // Black
+        { label: 'Investment', value: 5000000, color: '#2B2B2B' },        // Very Dark Gray
+        { label: 'Shopping', value: 4356000, color: '#555555' },          // Dark Gray
+        { label: 'Travelling', value: 3670000, color: '#808080' },        // Medium Gray
+        { label: 'Miscellaneous', value: 2749000, color: '#AAAAAA' },     // Light Gray
+        { label: 'Bill & Subscription', value: 2162000, color: '#D3D2D4' } // Very Light Gray (from brand)
     ];
-
-    // Override colors to fit Brand Guidelines if strictly enforced?
-    // The user said "details of the color... should follow brand guideline".
-    // The brand guideline is very limited (Green, White, Black).
-    // Using only those would make a chart unreadable.
-    // I will use the mockup colors but ensure the font/layout matches the brand.
     
     new Chart(ctx, {
         type: 'doughnut',
@@ -139,51 +135,20 @@ function initDonutChart() {
                     borderColor: 'rgba(0,0,0,0.05)',
                     borderWidth: 1,
                     callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed !== null) {
-                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed);
-                            }
-                            return label;
-                        }
+                        title: (context) => {
+                            return new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            }).format(context[0].raw);
+                        },
+                        label: (context) => context.label
                     }
                 }
             }
         }
     });
 
-    // Generate Custom Legend
-    const legendContainer = document.getElementById('categoryLegend');
-    
-    chartData.forEach(item => {
-        const itemEl = document.createElement('div');
-        itemEl.className = 'legend-item';
-        
-        // Format currency (using INR symbol as per mockup ₹, but let's check if project uses IDR)
-        // Project uses IDR (Rp). The mockup uses ₹.
-        // User said "brand guidelines and existing styles.css".
-        // Existing project uses IDR.
-        // I should use IDR to match the existing project, BUT the mockup shows ₹.
-        // "The mockup is to be followed for structure only".
-        // So I should follow the existing project's locale (IDR).
-        const formattedValue = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(item.value * 1000); // Mockup has small numbers, maybe thousands? 6156 -> 6,156,000?
-        // Let's just use the raw numbers but formatted as currency.
-        
-        itemEl.innerHTML = `
-            <div class="legend-label">
-                <div class="legend-color" style="background-color: ${item.color}"></div>
-                <span>${item.label}</span>
-            </div>
-            <div class="legend-value">${formattedValue}</div>
-        `;
-        
-        legendContainer.appendChild(itemEl);
-    });
+    // Legend removed - tooltip shows category information on hover
 }
