@@ -6,7 +6,7 @@
 	<!-- Logo -->
 	<div class="flex items-center gap-2 font-bold text-xl">
 		<i class="fa-solid fa-caret-right"></i>
-		<span>Ledgerix</span>
+		<span>Shaft</span>
 	</div>
 
 	<!-- Navigation Pill -->

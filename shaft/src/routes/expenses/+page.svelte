@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>Expenses Tracker - Ledgerix</title>
+	<title>Expenses Tracker - Shaft</title>
 </svelte:head>
 
 <div class="min-h-screen bg-bg-light p-5">
