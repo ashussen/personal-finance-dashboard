@@ -1,0 +1,201 @@
+date,transaction details,amount,bank account,category
+2025-11-14,XXI Premiere,-391000,Jenius,Entertainment
+2025-11-14,Alfamart,-10000,OVO,Food
+2025-11-13,Grab,-276000,BCA,Transport
+2025-11-11,Freelance Project,49900000,BCA,Salary
+2025-11-11,Alfamart,-60000,Mandiri,Food
+2025-11-10,Pertamina,-262000,BCA,Transport
+2025-11-08,Kopi Kenangan,-94000,Mandiri,Food
+2025-11-07,Uniqlo,-392000,OVO,Shopping
+2025-11-07,Hokben,-53000,BCA,Food
+2025-11-07,Parking,-437000,Mandiri,Transport
+2025-11-06,Parking,-129000,OVO,Transport
+2025-11-05,Bluebird,-43000,BCA,Transport
+2025-11-04,H&M,-116000,Jenius,Shopping
+2025-11-04,Spotify,-125000,Mandiri,Entertainment
+2025-11-04,GrabFood,-242000,BCA,Food
+2025-11-02,Indomaret,-474000,OVO,Food
+2025-11-02,Gofood,-459000,BCA,Food
+2025-11-01,Hokben,-270000,Jenius,Food
+2025-11-01,H&M,-483000,OVO,Shopping
+2025-10-31,Ajaib,-7800000,BCA,Investment
+2025-10-30,Shell,-107000,OVO,Transport
+2025-10-30,Telkomsel,-1391000,BCA,Bills
+2025-10-29,Ace Hardware,-184000,GoPay,Shopping
+2025-10-26,Monthly Salary,45500000,OVO,Salary
+2025-10-26,Freelance Project,37500000,OVO,Salary
+2025-10-25,Bibit,-4284000,Mandiri,Investment
+2025-10-25,Uniqlo,-341000,BCA,Shopping
+2025-10-25,Stockbit,-2041000,Jenius,Investment
+2025-10-23,Bibit,-7068000,BCA,Investment
+2025-10-22,Bonus,14700000,Jenius,Salary
+2025-10-22,GrabFood,-370000,GoPay,Food
+2025-10-20,H&M,-219000,BCA,Shopping
+2025-10-20,Telkomsel,-1246000,GoPay,Bills
+2025-10-19,Ajaib,-9501000,Jenius,Investment
+2025-10-18,Pertamina,-399000,BCA,Transport
+2025-10-17,Pluang,-6685000,OVO,Investment
+2025-10-16,Bonus,49200000,OVO,Salary
+2025-10-16,Tokopedia,-263000,BCA,Shopping
+2025-10-15,XXI Premiere,-375000,OVO,Entertainment
+2025-10-13,Monthly Salary,35300000,GoPay,Salary
+2025-10-11,GrabFood,-34000,OVO,Food
+2025-10-10,BPJS,-320000,BCA,Bills
+2025-10-09,Telkomsel,-1333000,GoPay,Bills
+2025-10-08,Stockbit,-9276000,GoPay,Investment
+2025-10-08,Bonus,32000000,Jenius,Salary
+2025-10-03,Netflix,-134000,Jenius,Entertainment
+2025-10-02,Bibit,-3132000,BCA,Investment
+2025-10-02,Grab,-143000,BCA,Transport
+2025-09-27,Gojek,-435000,Mandiri,Transport
+2025-09-26,Ace Hardware,-425000,OVO,Shopping
+2025-09-26,Shopee,-327000,Jenius,Shopping
+2025-09-24,Gofood,-378000,Jenius,Food
+2025-09-22,Grand Indonesia,-248000,Mandiri,Shopping
+2025-09-22,CGV Cinema,-250000,Mandiri,Entertainment
+2025-09-22,Stockbit,-4868000,BCA,Investment
+2025-09-22,Pluang,-4779000,Mandiri,Investment
+2025-09-22,Uniqlo,-430000,Mandiri,Shopping
+2025-09-20,BPJS,-223000,Jenius,Bills
+2025-09-20,Ajaib,-3861000,Jenius,Investment
+2025-09-20,Bibit,-5226000,OVO,Investment
+2025-09-20,Bibit,-5845000,GoPay,Investment
+2025-09-19,Netflix,-40000,BCA,Entertainment
+2025-09-17,Telkomsel,-183000,GoPay,Bills
+2025-09-17,CGV Cinema,-127000,Mandiri,Entertainment
+2025-09-16,Monthly Salary,38600000,BCA,Salary
+2025-09-16,Parking,-279000,BCA,Transport
+2025-09-13,Shopee,-43000,OVO,Shopping
+2025-09-12,Netflix,-47000,GoPay,Entertainment
+2025-09-12,BPJS,-633000,GoPay,Bills
+2025-09-11,Gofood,-271000,GoPay,Food
+2025-09-11,Netflix,-313000,OVO,Entertainment
+2025-09-11,CGV Cinema,-438000,Mandiri,Entertainment
+2025-09-11,Grab,-187000,BCA,Transport
+2025-09-11,Indomaret,-340000,Jenius,Food
+2025-09-09,Grand Indonesia,-54000,OVO,Shopping
+2025-09-07,Monthly Salary,15600000,Mandiri,Salary
+2025-09-07,Grand Indonesia,-414000,OVO,Shopping
+2025-09-07,Indihome,-773000,BCA,Bills
+2025-09-06,Starbucks,-298000,OVO,Food
+2025-09-05,Bonus,23300000,Mandiri,Salary
+2025-09-04,Bonus,38200000,BCA,Salary
+2025-09-04,Stockbit,-2578000,Jenius,Investment
+2025-09-02,Parking,-430000,BCA,Transport
+2025-09-02,Spotify,-19000,GoPay,Entertainment
+2025-09-01,PLN Token,-342000,Jenius,Bills
+2025-09-01,Ace Hardware,-248000,Mandiri,Shopping
+2025-09-01,Gofood,-317000,BCA,Food
+2025-09-01,Telkomsel,-1994000,OVO,Bills
+2025-08-31,Bonus,13500000,GoPay,Salary
+2025-08-31,Stockbit,-6329000,OVO,Investment
+2025-08-31,Monthly Salary,30700000,OVO,Salary
+2025-08-31,BPJS,-899000,GoPay,Bills
+2025-08-29,Grand Indonesia,-350000,BCA,Shopping
+2025-08-29,CGV Cinema,-287000,BCA,Entertainment
+2025-08-29,XXI Premiere,-219000,GoPay,Entertainment
+2025-08-28,CGV Cinema,-276000,OVO,Entertainment
+2025-08-28,Stockbit,-1731000,GoPay,Investment
+2025-08-27,Indomaret,-196000,Jenius,Food
+2025-08-26,Gojek,-92000,GoPay,Transport
+2025-08-26,Bluebird,-192000,Mandiri,Transport
+2025-08-25,Uniqlo,-465000,Jenius,Shopping
+2025-08-24,Hokben,-373000,BCA,Food
+2025-08-24,Grab,-58000,GoPay,Transport
+2025-08-21,Freelance Project,11800000,BCA,Salary
+2025-08-21,PLN Token,-1343000,Mandiri,Bills
+2025-08-20,Starbucks,-244000,BCA,Food
+2025-08-19,Kopi Kenangan,-214000,BCA,Food
+2025-08-18,Shell,-485000,Mandiri,Transport
+2025-08-16,Shopee,-376000,Mandiri,Shopping
+2025-08-16,CGV Cinema,-363000,Mandiri,Entertainment
+2025-08-16,Bonus,7900000,Jenius,Salary
+2025-08-14,Indihome,-388000,BCA,Bills
+2025-08-14,Spotify,-67000,BCA,Entertainment
+2025-08-14,Spotify,-92000,BCA,Entertainment
+2025-08-12,Parking,-212000,Jenius,Transport
+2025-08-12,Gofood,-283000,BCA,Food
+2025-08-12,GrabFood,-107000,GoPay,Food
+2025-08-11,Alfamart,-493000,BCA,Food
+2025-08-10,Warung Makan,-410000,Jenius,Food
+2025-08-09,Bibit,-1142000,Jenius,Investment
+2025-08-08,Hokben,-236000,BCA,Food
+2025-08-06,Uniqlo,-33000,GoPay,Shopping
+2025-08-04,Ajaib,-7374000,BCA,Investment
+2025-08-01,CGV Cinema,-312000,BCA,Entertainment
+2025-07-31,PLN Token,-1011000,Mandiri,Bills
+2025-07-31,Parking,-41000,GoPay,Transport
+2025-07-28,Telkomsel,-1979000,Mandiri,Bills
+2025-07-28,Apartment Maintenance,-1888000,OVO,Bills
+2025-07-28,Indomaret,-302000,BCA,Food
+2025-07-25,Shopee,-393000,GoPay,Shopping
+2025-07-25,Freelance Project,40900000,Jenius,Salary
+2025-07-24,Hokben,-254000,Jenius,Food
+2025-07-23,Warung Makan,-217000,BCA,Food
+2025-07-19,Pluang,-6689000,Mandiri,Investment
+2025-07-19,H&M,-279000,GoPay,Shopping
+2025-07-19,Warung Makan,-281000,Mandiri,Food
+2025-07-18,Shopee,-152000,BCA,Shopping
+2025-07-17,Tokopedia,-297000,BCA,Shopping
+2025-07-16,Grand Indonesia,-69000,GoPay,Shopping
+2025-07-16,CGV Cinema,-319000,OVO,Entertainment
+2025-07-14,Pertamina,-91000,Mandiri,Transport
+2025-07-12,Indihome,-502000,Mandiri,Bills
+2025-07-11,Monthly Salary,32000000,GoPay,Salary
+2025-07-11,Starbucks,-181000,BCA,Food
+2025-07-11,Pluang,-3661000,BCA,Investment
+2025-07-10,Warung Makan,-385000,OVO,Food
+2025-07-07,Freelance Project,46300000,GoPay,Salary
+2025-07-07,Freelance Project,49600000,GoPay,Salary
+2025-07-07,Pluang,-3029000,Jenius,Investment
+2025-07-07,Tokopedia,-114000,Jenius,Shopping
+2025-07-07,Stockbit,-7250000,GoPay,Investment
+2025-07-07,Indihome,-1288000,Jenius,Bills
+2025-07-05,Spotify,-267000,Jenius,Entertainment
+2025-07-04,Bonus,23400000,BCA,Salary
+2025-07-04,Gofood,-441000,OVO,Food
+2025-07-04,Tokopedia,-152000,GoPay,Shopping
+2025-07-03,Monthly Salary,25200000,GoPay,Salary
+2025-07-02,Ajaib,-6533000,BCA,Investment
+2025-07-02,Telkomsel,-1877000,OVO,Bills
+2025-07-01,Apartment Maintenance,-361000,GoPay,Bills
+2025-07-01,Gojek,-287000,GoPay,Transport
+2025-06-30,Pluang,-2959000,BCA,Investment
+2025-06-29,Indihome,-294000,BCA,Bills
+2025-06-29,PLN Token,-1642000,OVO,Bills
+2025-06-29,Ace Hardware,-27000,OVO,Shopping
+2025-06-28,Alfamart,-442000,Mandiri,Food
+2025-06-27,XXI Premiere,-130000,GoPay,Entertainment
+2025-06-27,Bibit,-9563000,Mandiri,Investment
+2025-06-24,Netflix,-191000,GoPay,Entertainment
+2025-06-23,Indihome,-672000,OVO,Bills
+2025-06-23,PLN Token,-885000,GoPay,Bills
+2025-06-23,Grab,-83000,GoPay,Transport
+2025-06-22,Hokben,-149000,OVO,Food
+2025-06-22,CGV Cinema,-218000,GoPay,Entertainment
+2025-06-20,H&M,-72000,BCA,Shopping
+2025-06-19,Alfamart,-162000,Jenius,Food
+2025-06-18,Tokopedia,-181000,GoPay,Shopping
+2025-06-17,Indihome,-1134000,Jenius,Bills
+2025-06-16,XXI Premiere,-372000,GoPay,Entertainment
+2025-06-14,Grand Indonesia,-406000,Jenius,Shopping
+2025-06-14,H&M,-494000,BCA,Shopping
+2025-06-14,Indihome,-959000,Jenius,Bills
+2025-06-14,Freelance Project,27400000,OVO,Salary
+2025-06-14,BPJS,-1917000,Jenius,Bills
+2025-06-13,Bonus,24000000,Jenius,Salary
+2025-06-12,Kopi Kenangan,-38000,Mandiri,Food
+2025-06-11,Warung Makan,-302000,GoPay,Food
+2025-06-10,Spotify,-251000,Mandiri,Entertainment
+2025-06-07,Telkomsel,-905000,GoPay,Bills
+2025-06-06,XXI Premiere,-219000,Mandiri,Entertainment
+2025-06-03,Stockbit,-9658000,GoPay,Investment
+2025-06-03,Kopi Kenangan,-232000,BCA,Food
+2025-05-30,Tokopedia,-414000,GoPay,Shopping
+2025-05-30,PLN Token,-265000,BCA,Bills
+2025-05-28,Telkomsel,-519000,OVO,Bills
+2025-05-26,Uniqlo,-263000,BCA,Shopping
+2025-05-25,Telkomsel,-335000,Jenius,Bills
+2025-05-25,CGV Cinema,-356000,OVO,Entertainment
+2025-05-25,Ajaib,-9063000,Jenius,Investment
+2025-05-24,Uniqlo,-383000,BCA,Shopping
