@@ -96,6 +96,12 @@
 	}
 </script>
 
-<div class="bg-white rounded-3xl p-8 flex flex-col justify-center items-center h-[500px]">
-	<canvas bind:this={chartCanvas} class="w-full h-full"></canvas>
+<div class="p-5 rounded-2xl bg-white border border-bg-light h-[500px] flex flex-col">
+	<div class="flex justify-between mb-4 text-xs text-text-secondary uppercase tracking-wider">
+		<span>Monthly Spending</span>
+		<i class="fa-solid fa-expand cursor-pointer"></i>
+	</div>
+	<div class="flex-1 w-full min-h-0 relative">
+		<canvas bind:this={chartCanvas} class="w-full h-full"></canvas>
+	</div>
 </div>

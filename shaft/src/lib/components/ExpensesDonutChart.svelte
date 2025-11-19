@@ -27,6 +27,10 @@
 	function initDonutChart() {
 		const ctx = chartCanvas.getContext('2d');
 		
+		// Find the index of the largest value
+		const maxValue = Math.max(...chartData.map(d => d.value));
+		const largestIndex = chartData.findIndex(d => d.value === maxValue);
+		
 		chartInstance = new Chart(ctx, {
 			type: 'doughnut',
 			data: {
@@ -35,13 +39,22 @@
 					data: chartData.map(d => d.value),
 					backgroundColor: chartData.map(d => d.color),
 					borderWidth: 0,
-					hoverOffset: 4
+					hoverOffset: 30,
+					offset: 0
 				}]
 			},
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
 				cutout: '70%',
+				layout: {
+					padding: {
+						top: 40,
+						bottom: 40,
+						left: 40,
+						right: 40
+					}
+				},
 				plugins: {
 					legend: {
 						display: false
@@ -73,17 +86,47 @@
 							label: (context) => context.label
 						}
 					}
+				},
+				onHover: (event, activeElements) => {
+					event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
+					
+					// Clear active state when mouse leaves all segments
+					if (activeElements.length === 0) {
+						chartInstance.tooltip.setActiveElements([]);
+						chartInstance.setActiveElements([]);
+						
+						// Reset offset to 0 for all segments
+						chartInstance.update();
+					}
 				}
 			}
 		});
+		
+		// Show tooltip for the largest segment by default
+		setTimeout(() => {
+			if (chartInstance) {
+				// Set offset for the largest segment
+				
+				chartInstance.tooltip.setActiveElements([{
+					datasetIndex: 0,
+					index: largestIndex
+				}]);
+				chartInstance.setActiveElements([{
+					datasetIndex: 0,
+					index: largestIndex
+				}]);
+				chartInstance.update();
+			}
+		}, 100);
 	}
 </script>
 
-<div class="bg-white rounded-3xl p-8 flex flex-col justify-center items-center h-[500px]">
-	<div class="relative w-full h-[400px] flex flex-col items-center justify-center">
+<div class="p-5 rounded-2xl bg-white border border-bg-light h-[500px] flex flex-col">
+	<div class="flex justify-between mb-4 text-xs text-text-secondary uppercase tracking-wider">
+		<span>Budgets</span>
+		<i class="fa-solid fa-expand cursor-pointer"></i>
+	</div>
+	<div class="relative w-full flex-1 flex flex-col items-center justify-center min-h-0">
 		<canvas bind:this={chartCanvas}></canvas>
-		<button class="mt-5 bg-white border border-text-secondary py-1.5 px-3 rounded-lg text-xs text-text-secondary cursor-pointer hover:bg-bg-light transition-colors">
-			More Details..
-		</button>
 	</div>
 </div>
