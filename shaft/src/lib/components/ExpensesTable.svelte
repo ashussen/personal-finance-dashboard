@@ -123,82 +123,85 @@
 		<div class="overflow-x-auto">
 			<table class="w-full border-collapse">
 				<thead>
-					<tr class="bg-gray-50">
-						<th class="text-left py-2.5 px-4 text-text-secondary font-medium text-xs uppercase tracking-wide border-b border-gray-200">Date</th>
-						<th class="text-left py-2.5 px-4 text-text-secondary font-medium text-xs uppercase tracking-wide border-b border-gray-200">Details</th>
-						<th class="text-left py-2.5 px-4 text-text-secondary font-medium text-xs uppercase tracking-wide border-b border-gray-200">Category</th>
-						<th class="text-right py-2.5 px-4 text-text-secondary font-medium text-xs uppercase tracking-wide border-b border-gray-200">Amount</th>
-						<th class="text-center py-2.5 px-4 text-text-secondary font-medium text-xs uppercase tracking-wide border-b border-gray-200">Actions</th>
+					<tr class="bg-bg-light">
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Date</th>
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Account</th>
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Details</th>
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Category</th>
+						<th class="text-right py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Amount</th>
+						<th class="text-center py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each pageData as tx, index}
-						<tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
-							<td class="py-2.5 px-4 text-text-primary text-xs">{formatDate(tx.date)}</td>
-							<td class="py-2.5 px-4">
-								<div class="font-medium text-xs text-text-primary">{tx.details}</div>
-								<div class="text-[10px] text-text-secondary mt-0.5">{tx.account}</div>
+						<tr class="hover:bg-primary-green/5 transition-colors border-b border-gray-100">
+							<td class="py-3 px-4 text-text-primary text-sm">{formatDate(tx.date)}</td>
+							<td class="py-3 px-4">
+								<div class="text-sm text-text-secondary">{tx.account}</div>
 							</td>
-							<td class="py-2.5 px-4">
+							<td class="py-3 px-4">
+								<div class="font-medium text-sm text-text-primary">{tx.details}</div>
+							</td>
+							<td class="py-3 px-4">
 								{#if isEditing(index)}
 									<select 
 										value={getEditValue(index, 'category') || tx.category}
 										on:change={(e) => updateCategory(index, e.target.value)}
-										class="w-full bg-white border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
 									>
 										{#each categories as cat}
 											<option value={cat}>{cat}</option>
 										{/each}
 									</select>
 								{:else}
-									<span class="text-blue-600 text-xs font-medium">{tx.category}</span>
+									<span class="text-text-primary text-sm font-medium">{tx.category}</span>
 								{/if}
 							</td>
-							<td class="py-2.5 px-4 text-right">
+							<td class="py-3 px-4 text-right">
 								{#if isEditing(index)}
 									<input 
 										type="number"
 										value={getEditValue(index, 'amount') ?? tx.amount}
 										on:input={(e) => updateAmount(index, e.target.value)}
-										class="w-full bg-white border border-gray-300 rounded px-2 py-1 text-xs text-right focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm text-right focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
 										step="0.01"
 									/>
 								{:else}
-									<span class="{tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-xs">
+									<span class="{tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">
 										{tx.amount > 0 ? '+' : ''}{formatIDR(tx.amount)}
 									</span>
 								{/if}
 							</td>
-							<td class="py-2.5 px-4">
+							<td class="py-3 px-4">
 								<div class="flex items-center justify-center gap-1.5">
 									{#if isEditing(index)}
 										<button
 											on:click={() => saveEdit(index)}
-											class="w-7 h-7 rounded flex items-center justify-center hover:bg-green-100 text-green-600 transition-colors"
+											class="w-8 h-8 rounded flex items-center justify-center hover:bg-primary-green/20 text-text-black transition-colors"
 											title="Save"
 										>
-											<i class="fa-solid fa-check text-xs"></i>
+											<i class="fa-solid fa-check text-sm"></i>
 										</button>
 										<button
 											on:click={() => cancelEdit(index)}
-											class="w-7 h-7 rounded flex items-center justify-center hover:bg-red-100 text-red-600 transition-colors"
+											class="w-8 h-8 rounded flex items-center justify-center hover:bg-text-secondary/20 text-text-secondary transition-colors"
 											title="Cancel"
 										>
-											<i class="fa-solid fa-xmark text-xs"></i>
+											<i class="fa-solid fa-xmark text-sm"></i>
 										</button>
 									{:else}
 										<button
 											on:click={() => startEditing(index, tx)}
-											class="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 text-gray-600 transition-colors"
+											class="w-8 h-8 rounded flex items-center justify-center hover:bg-bg-light text-text-secondary transition-colors"
 											title="Edit"
 										>
-											<i class="fa-solid fa-pen text-xs"></i>
+											<i class="fa-solid fa-pen text-sm"></i>
 										</button>
 										<button
-											class="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 text-gray-400 transition-colors"
+											class="w-8 h-8 rounded flex items-center justify-center hover:bg-bg-light text-text-secondary transition-colors"
 											title="Delete"
 										>
-											<i class="fa-solid fa-trash text-xs"></i>
+											<i class="fa-solid fa-trash text-sm"></i>
 										</button>
 									{/if}
 								</div>
@@ -210,23 +213,23 @@
 		</div>
 	</div>
 	
-	<div class="flex justify-between items-center mt-4 text-text-secondary text-xs">
+	<div class="flex justify-between items-center mt-4 text-text-secondary text-sm">
 		<button 
 			on:click={prevPage}
 			disabled={currentPage === 1}
-			class="px-3 py-1.5 rounded border border-gray-300 bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-xs"
+			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
 		>
-			<i class="fa-solid fa-chevron-left text-[10px]"></i>
+			<i class="fa-solid fa-chevron-left text-xs"></i>
 			Previous
 		</button>
-		<span class="text-xs">Page {currentPage} of {totalPages}</span>
+		<span class="text-sm">Page {currentPage} of {totalPages}</span>
 		<button 
 			on:click={nextPage}
 			disabled={currentPage === totalPages}
-			class="px-3 py-1.5 rounded border border-gray-300 bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-xs"
+			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
 		>
 			Next
-			<i class="fa-solid fa-chevron-right text-[10px]"></i>
+			<i class="fa-solid fa-chevron-right text-xs"></i>
 		</button>
 	</div>
 </div>
