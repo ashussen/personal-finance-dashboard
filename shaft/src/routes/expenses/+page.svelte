@@ -1,7 +1,32 @@
 <script>
+	import { onMount } from 'svelte';
 	import Header from '$lib/components/Header.svelte';
 	import ExpensesBarChart from '$lib/components/ExpensesBarChart.svelte';
 	import ExpensesDonutChart from '$lib/components/ExpensesDonutChart.svelte';
+	import ExpensesTable from '$lib/components/ExpensesTable.svelte';
+	
+	let allTransactions = [];
+	
+	onMount(async () => {
+		try {
+			const response = await fetch('/transactions.csv');
+			const csvText = await response.text();
+			const lines = csvText.trim().split('\n');
+			
+			allTransactions = lines.slice(1).map(line => {
+				const [date, details, amount, account, category] = line.split(',');
+				return {
+					date,
+					details,
+					amount: parseFloat(amount),
+					account,
+					category
+				};
+			});
+		} catch (error) {
+			console.error('Error loading transactions:', error);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -50,6 +75,9 @@
 				<!-- Right Column: Donut Chart -->
 				<ExpensesDonutChart />
 			</div>
+			
+			<!-- Expenses Table -->
+			<ExpensesTable transactions={allTransactions} />
 		</div>
 	</div>
 </div>
