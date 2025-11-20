@@ -37,7 +37,51 @@ export async function POST({ request }) {
 						content: [
 							{
 								type: 'input_text',
-								text: 'Extract all transactions from this bank statement and return them as a JSON array. Each transaction should have: date (YYYY-MM-DD), details, amount (negative for expenses), account, and category (Food, Transport, Shopping, Bills, Entertainment, Investment, Salary, Other). Return ONLY valid JSON.'
+								text: `Analyze this Indonesian bank statement PDF and extract ALL transaction data with MAXIMUM ACCURACY.
+
+CRITICAL REQUIREMENTS:
+1. COMPLETE DETAILS: Capture the FULL transaction description including ALL lines of text. Many transactions have multi-line descriptions - you MUST include EVERY line, word, and number from the description.
+2. Extract EVERY transaction (both debit and credit)
+3. Handle Indonesian text and currency formats correctly
+4. Identify the bank name from document header (BCA, Bank Mega, Mandiri, OCBC, etc.)
+5. Extract account number if visible
+
+DATE FORMAT:
+- Use YYYY-MM-DD format
+- If only day/month shown (e.g., 06/06), use 2025 as year → 2025-06-06
+
+AMOUNT CONVERSION:
+- Remove all dots and commas from Indonesian currency
+- "Rp 1.000.000" → 1000000
+- "3,555,161" → 3555161
+- "123.760.000,00" → 123760000
+- Use NEGATIVE (-) for debits/expenses (DB, withdrawals, payments)
+- Use POSITIVE (+) for credits (CR, deposits, income)
+
+BANK IDENTIFICATION:
+- BCA: Look for "REKENING TAHAPAN", "REKENING KARTU KREDIT", or "BCA" header
+- Bank Mega: Credit card statements or "Bank Mega" header
+- Mandiri: "Tabungan NOW", "Mandiri" header
+- OCBC: "REKENING KORAN GIRO", "OCBC" header
+
+Return ONLY a valid JSON array with this EXACT structure:
+[
+  {
+    "date": "YYYY-MM-DD",
+    "details": "Complete multi-line description with all text",
+    "amount": -123456.00,
+    "source": "Bank Name",
+    "account": "account number if available"
+  }
+]
+
+Do NOT:
+- Skip any part of transaction descriptions
+- Add categories or extra fields
+- Truncate or summarize details
+- Miss any transactions
+
+Return ONLY the JSON array, no markdown formatting, no explanations.`
 							},
 							{
 								type: 'input_file',
