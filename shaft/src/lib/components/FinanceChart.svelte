@@ -30,15 +30,23 @@
 			const date = new Date(d.date);
 			return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 		});
-		const values = chartData.map(d => d.balance);
+		const netWorthValues = chartData.map(d => d.balance);
+		
+		// Calculate cumulative income and expenses
+		let cumulativeIncome = 0;
+		let cumulativeExpenses = 0;
+		const incomeValues = chartData.map(d => {
+			cumulativeIncome += (d.income || 0);
+			return cumulativeIncome;
+		});
+		const expenseValues = chartData.map(d => {
+			cumulativeExpenses += (d.expenses || 0);
+			return cumulativeExpenses;
+		});
 
 		if (chartInstance) {
 			chartInstance.destroy();
 		}
-
-		const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-		gradient.addColorStop(0, 'rgba(117, 251, 144, 0.5)');
-		gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
 		chartInstance = new Chart(ctx, {
 			type: 'bar',
@@ -47,25 +55,52 @@
 				datasets: [
 					{
 						type: 'line',
-						label: 'Trend',
-						data: values,
-						borderColor: '#000000',
+						label: 'Income',
+						data: incomeValues,
+						borderColor: '#808080',
+						backgroundColor: '#808080',
 						borderWidth: 2,
 						tension: 0.4,
 						pointRadius: 0,
 						pointHoverRadius: 6,
+						pointBackgroundColor: '#4A4A4A',
+						pointHoverBackgroundColor: '#75FB90',
+						pointBorderColor: '#4A4A4A',
+						pointHoverBorderColor: '#75FB90',
+						hoverBorderColor: '#75FB90',
 						fill: false,
+						yAxisID: 'y1',
 						order: 1
+					},
+					{
+						type: 'line',
+						label: 'Expenses',
+						data: expenseValues,
+						borderColor: '#000000',
+						backgroundColor: '#000000',
+						borderWidth: 2,
+						tension: 0.4,
+						pointRadius: 0,
+						pointHoverRadius: 6,
+						pointBackgroundColor: '#000000',
+						pointHoverBackgroundColor: '#FF6B6B',
+						pointBorderColor: '#000000',
+						pointHoverBorderColor: '#FF6B6B',
+						hoverBorderColor: '#FF6B6B',
+						fill: false,
+						yAxisID: 'y1',
+						order: 2
 					},
 					{
 						type: 'bar',
 						label: 'Net Worth',
-						data: values,
+						data: netWorthValues,
 						backgroundColor: '#F0EFF2',
-						hoverBackgroundColor: '#75FB90',
+						hoverBackgroundColor: '#D3D3D3',
 						borderRadius: 4,
 						barPercentage: 0.6,
-						order: 2
+						yAxisID: 'y',
+						order: 3
 					}
 				]
 			},
@@ -74,7 +109,19 @@
 				maintainAspectRatio: false,
 				plugins: {
 					legend: {
-						display: false
+						display: true,
+						position: 'top',
+						align: 'end',
+						labels: {
+							font: {
+								family: 'Urbanist',
+								size: 11
+							},
+							boxWidth: 12,
+							boxHeight: 12,
+							usePointStyle: true,
+							pointStyle: 'circle'
+						}
 					},
 					tooltip: {
 						backgroundColor: '#FFFFFF',
@@ -93,18 +140,35 @@
 						cornerRadius: 8,
 						borderColor: 'rgba(0,0,0,0.05)',
 						borderWidth: 1,
-						displayColors: false,
+						displayColors: true,
 						callbacks: {
-							title: (context) => {
-								const value = context[0].raw;
-								return new Intl.NumberFormat('id-ID', {
+							title: (context) => context[0].label,
+							label: (context) => {
+								const label = context.dataset.label || '';
+								const value = new Intl.NumberFormat('id-ID', {
 									style: 'currency',
 									currency: 'IDR',
 									minimumFractionDigits: 0,
 									maximumFractionDigits: 0
-								}).format(value);
+								}).format(context.raw);
+								return `${label}: ${value}`;
 							},
-							label: (context) => context.label
+							labelColor: (context) => {
+								const label = context.dataset.label;
+								let color = '#000000'; // Default black for Net Worth
+								
+								if (label === 'Income') {
+									color = '#75FB90'; // Green for Income
+								} else if (label === 'Expenses') {
+									color = '#FF6B6B'; // Red for Expenses
+								}
+								
+								return {
+									backgroundColor: color,
+									borderWidth: 2,
+									borderRadius: 2
+								};
+							}
 						}
 					}
 				},
@@ -127,9 +191,19 @@
 						}
 					},
 					y: {
+						type: 'linear',
 						display: false,
-						min: Math.min(...values) * 0.99,
-						max: Math.max(...values) * 1.01
+						position: 'left',
+						min: Math.min(...netWorthValues) * 0.99,
+						max: Math.max(...netWorthValues) * 1.01
+					},
+					y1: {
+						type: 'linear',
+						display: false,
+						position: 'right',
+						grid: {
+							drawOnChartArea: false
+						}
 					}
 				},
 				interaction: {

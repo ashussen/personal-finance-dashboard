@@ -11,6 +11,8 @@
 	let monthlyExpenses = 0;
 	let totalInvestments = 0;
 	let chartData = [];
+	let timePeriod = 'Month'; // Default to Month
+	let allDailyBalances = [];
 	
 	const INITIAL_NET_WORTH = 1000000000; // 1 Billion IDR Base
 	
@@ -50,12 +52,39 @@
 	function calculateMetrics(transactions) {
 		let currentNetWorth = INITIAL_NET_WORTH;
 		const dailyBalances = [];
+		const dailyData = {}; // Track income and expenses by date
 
+		// First pass: aggregate income and expenses by date
 		transactions.forEach(tx => {
-			currentNetWorth += tx.amount;
-			dailyBalances.push({ date: tx.date, balance: currentNetWorth });
+			if (!dailyData[tx.date]) {
+				dailyData[tx.date] = { income: 0, expenses: 0 };
+			}
+			
+			if (tx.amount > 0) {
+				dailyData[tx.date].income += tx.amount;
+			} else {
+				dailyData[tx.date].expenses += Math.abs(tx.amount);
+			}
 		});
 
+		// Second pass: calculate net worth and combine data
+		transactions.forEach(tx => {
+			currentNetWorth += tx.amount;
+			const existingEntry = dailyBalances.find(d => d.date === tx.date);
+			
+			if (!existingEntry) {
+				dailyBalances.push({ 
+					date: tx.date, 
+					balance: currentNetWorth,
+					income: dailyData[tx.date].income,
+					expenses: dailyData[tx.date].expenses
+				});
+			} else {
+				existingEntry.balance = currentNetWorth;
+			}
+		});
+
+		allDailyBalances = dailyBalances;
 		netWorth = currentNetWorth;
 
 		const latestDate = new Date(transactions[transactions.length - 1].date);
@@ -85,7 +114,57 @@
 		monthlyExpenses = expenses;
 		totalInvestments = investments;
 		savingsGoal = monthlyIncome - expenses;
-		chartData = dailyBalances.slice(-32);
+		updateChartData();
+	}
+
+	function updateChartData() {
+		if (allDailyBalances.length === 0) return;
+		
+		let numDays;
+		switch(timePeriod) {
+			case 'Month':
+				numDays = 30;
+				break;
+			case 'Quarter':
+				numDays = 90;
+				break;
+			case 'Year':
+				numDays = 365;
+				break;
+			default:
+				numDays = 30;
+		}
+		
+		// Get data for the selected period
+		const dataPoints = allDailyBalances.slice(-numDays);
+		
+		// Aggregate by week or month for better visualization if needed
+		if (numDays > 90) {
+			// For year view, aggregate by week
+			const weeklyData = [];
+			for (let i = 0; i < dataPoints.length; i += 7) {
+				const weekData = dataPoints.slice(i, i + 7);
+				if (weekData.length > 0) {
+					const lastDay = weekData[weekData.length - 1];
+					const weekIncome = weekData.reduce((sum, d) => sum + (d.income || 0), 0);
+					const weekExpenses = weekData.reduce((sum, d) => sum + (d.expenses || 0), 0);
+					weeklyData.push({
+						date: lastDay.date,
+						balance: lastDay.balance,
+						income: weekIncome,
+						expenses: weekExpenses
+					});
+				}
+			}
+			chartData = weeklyData;
+		} else {
+			chartData = dataPoints;
+		}
+	}
+
+	// Update chart when time period changes
+	$: if (timePeriod && allDailyBalances.length > 0) {
+		updateChartData();
 	}
 </script>
 
@@ -132,10 +211,24 @@
 					</div>
 					<div class="text-text-secondary">Total Net Worth</div>
 					<div class="flex justify-center gap-5 mt-2.5 text-text-secondary text-sm">
-						<span class="cursor-pointer hover:text-text-black">Week</span>
-						<span class="cursor-pointer text-text-black font-semibold underline underline-offset-4">Month</span>
-						<span class="cursor-pointer hover:text-text-black">Quarter</span>
-						<span class="cursor-pointer hover:text-text-black">Year</span>
+						<button 
+							on:click={() => timePeriod = 'Month'}
+							class="cursor-pointer hover:text-text-black transition-colors {timePeriod === 'Month' ? 'text-text-black font-semibold underline underline-offset-4' : ''}"
+						>
+							Month
+						</button>
+						<button 
+							on:click={() => timePeriod = 'Quarter'}
+							class="cursor-pointer hover:text-text-black transition-colors {timePeriod === 'Quarter' ? 'text-text-black font-semibold underline underline-offset-4' : ''}"
+						>
+							Quarter
+						</button>
+						<button 
+							on:click={() => timePeriod = 'Year'}
+							class="cursor-pointer hover:text-text-black transition-colors {timePeriod === 'Year' ? 'text-text-black font-semibold underline underline-offset-4' : ''}"
+						>
+							Year
+						</button>
 					</div>
 				</div>
 			</div>
