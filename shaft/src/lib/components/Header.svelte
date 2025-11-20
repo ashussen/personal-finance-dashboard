@@ -1,5 +1,7 @@
 <script>
-	// No props needed for static header
+	import { page } from '$app/stores';
+	
+	$: currentPath = $page.url.pathname;
 </script>
 
 <header class="flex justify-between items-center mb-10">
@@ -11,12 +13,12 @@
 
 	<!-- Navigation Pill -->
 	<div class="bg-bg-light p-1.5 rounded-xl flex gap-1">
-		<div class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer text-text-secondary transition-all hover:bg-text-black hover:text-white">
+		<a href="/" class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all {currentPath === '/' ? 'bg-text-black text-white' : 'text-text-secondary hover:bg-text-black hover:text-white'}">
 			<i class="fa-solid fa-house"></i>
-		</div>
-		<div class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer bg-text-black text-white">
-			<i class="fa-solid fa-folder"></i>
-		</div>
+		</a>
+		<a href="/expenses" class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all {currentPath === '/expenses' ? 'bg-text-black text-white' : 'text-text-secondary hover:bg-text-black hover:text-white'}">
+			<i class="fa-solid fa-wallet"></i>
+		</a>
 		<div class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer text-text-secondary transition-all hover:bg-text-black hover:text-white">
 			<i class="fa-solid fa-bolt"></i>
 		</div>
