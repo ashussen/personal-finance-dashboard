@@ -6,6 +6,8 @@
 
 	let chartCanvas;
 	let chartInstance;
+	let timePeriod = '6 Months'; // Default to 6 months
+	let showDropdown = false;
 
 	$: if (transactions.length > 0 && chartCanvas) {
 		if (chartInstance) {
@@ -13,6 +15,11 @@
 		} else {
 			initBarChart();
 		}
+	}
+
+	// Update chart when time period changes
+	$: if (timePeriod && chartInstance) {
+		updateChart();
 	}
 
 	onMount(() => {
@@ -25,6 +32,10 @@
 	});
 
 	function processData() {
+		return processMonthlyData();
+	}
+
+	function processMonthlyData() {
 		const monthlyData = {};
 		
 		transactions.forEach(tx => {
@@ -48,9 +59,10 @@
 			}
 		});
 
-		// Sort by date (key) and take the last 6 months
+		// Sort by date (key) and take the appropriate number of months
 		const sortedKeys = Object.keys(monthlyData).sort();
-		const limitedKeys = sortedKeys.slice(-6); // Show last 6 months
+		const monthsToShow = timePeriod === '12 Months' ? 12 : 6;
+		const limitedKeys = sortedKeys.slice(-monthsToShow);
 
 		return {
 			labels: limitedKeys.map(key => monthlyData[key].label),
@@ -198,7 +210,36 @@
 <div class="p-5 rounded-2xl bg-white border border-bg-light h-[500px] flex flex-col">
 	<div class="flex justify-between mb-4 text-xs text-text-secondary uppercase tracking-wider">
 		<span>Monthly Spending</span>
-		<i class="fa-solid fa-expand cursor-pointer"></i>
+		<div class="flex items-center gap-3">
+			<!-- Time Period Dropdown -->
+			<div class="relative">
+				<button 
+					on:click={() => showDropdown = !showDropdown}
+					class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-bg-light hover:bg-gray-200 transition-colors text-xs normal-case"
+				>
+					<span class="text-text-black font-medium">{timePeriod}</span>
+					<i class="fa-solid fa-chevron-down text-[8px]"></i>
+				</button>
+				
+				{#if showDropdown}
+					<div class="absolute right-0 mt-1 w-32 bg-white border border-bg-light rounded-lg shadow-lg z-10">
+						<button 
+							on:click={() => { timePeriod = '12 Months'; showDropdown = false; }}
+							class="w-full text-left px-3 py-2 text-xs hover:bg-bg-light transition-colors {timePeriod === '12 Months' ? 'bg-bg-light font-medium' : ''}"
+						>
+							12 Months
+						</button>
+						<button 
+							on:click={() => { timePeriod = '6 Months'; showDropdown = false; }}
+							class="w-full text-left px-3 py-2 text-xs hover:bg-bg-light transition-colors {timePeriod === '6 Months' ? 'bg-bg-light font-medium' : ''}"
+						>
+							6 Months
+						</button>
+					</div>
+				{/if}
+			</div>
+			<i class="fa-solid fa-expand cursor-pointer"></i>
+		</div>
 	</div>
 	<div class="flex-1 w-full min-h-0 relative">
 		<canvas bind:this={chartCanvas} class="w-full h-full"></canvas>

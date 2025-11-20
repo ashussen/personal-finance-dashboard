@@ -43,7 +43,7 @@
 			<div>
 				<div class="flex justify-between items-center">
 					<div>
-						<h1 class="font-normal mb-2.5 text-3xl">Personal Finance</h1>
+						<h1 class="font-normal mb-2.5 text-3xl">Expenses</h1>
 						<div class="text-text-secondary text-sm">
 							<span class="mr-2.5">● Monthly Overview</span>
 						</div>
