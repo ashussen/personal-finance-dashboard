@@ -2,7 +2,7 @@ import csv
 import random
 from datetime import datetime, timedelta
 
-def generate_transactions(num_rows=200):
+def generate_transactions(num_rows=800):
     # Setup data lists
     categories = {
         'Food': ['Gofood', 'GrabFood', 'Indomaret', 'Alfamart', 'Warung Makan', 'Starbucks', 'Kopi Kenangan', 'Hokben'],
@@ -17,20 +17,21 @@ def generate_transactions(num_rows=200):
     accounts = ['BCA', 'Mandiri', 'Jenius', 'GoPay', 'OVO']
     
     transactions = []
-    start_date = datetime.now() - timedelta(days=180)
+    # November 2024 to November 2025 (13 months)
+    start_date = datetime(2024, 11, 1)
     
     for _ in range(num_rows):
-        # Random date
-        days_offset = random.randint(0, 180)
+        # Random date between Nov 2024 and Nov 2025 (365 days)
+        days_offset = random.randint(0, 365)
         date = (start_date + timedelta(days=days_offset)).strftime('%Y-%m-%d')
         
         # Determine type (Income vs Expense)
-        # 10% chance of income/salary
-        if random.random() < 0.1:
+        # 7% chance of income/salary (lower to create months with deficit)
+        if random.random() < 0.07:
             category = 'Salary'
             detail = random.choice(categories[category])
-            # Income between 5M and 50M
-            amount = random.randint(5000000, 50000000)
+            # Income between 8M and 25M (more realistic range)
+            amount = random.randint(8000000, 25000000)
             # Round to nearest 100k
             amount = round(amount / 100000) * 100000
         else:
