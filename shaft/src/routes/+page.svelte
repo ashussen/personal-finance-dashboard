@@ -14,6 +14,14 @@
 	let timePeriod = 'Month'; // Default to Month
 	let allDailyBalances = [];
 	
+	// Period-specific metrics
+	let periodNetWorthChange = 0;
+	let periodExpenses = 0;
+	let periodIncome = 0;
+	let periodSavings = 0;
+	
+	const SAVINGS_TARGET = 3000000000; // 3 Billion IDR
+	
 	const INITIAL_NET_WORTH = 1000000000; // 1 Billion IDR Base
 	
 	function formatIDR(amount) {
@@ -138,6 +146,18 @@
 		// Get data for the selected period
 		const dataPoints = allDailyBalances.slice(-numDays);
 		
+		// Calculate period metrics
+		if (dataPoints.length > 0) {
+			const startBalance = dataPoints[0].balance;
+			const endBalance = dataPoints[dataPoints.length - 1].balance;
+			periodNetWorthChange = endBalance - startBalance;
+			
+			// Sum up income and expenses for the period
+			periodIncome = dataPoints.reduce((sum, d) => sum + (d.income || 0), 0);
+			periodExpenses = dataPoints.reduce((sum, d) => sum + (d.expenses || 0), 0);
+			periodSavings = periodIncome - periodExpenses;
+		}
+		
 		// Aggregate by week or month for better visualization if needed
 		if (numDays > 90) {
 			// For year view, aggregate by week
@@ -238,11 +258,11 @@
 
 			<!-- Metrics Grid -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-				<!-- Savings Goals -->
+				<!-- Net Worth Change -->
 				<MetricCard 
-					title="Savings Goals" 
-					value={formatIDR(savingsGoal)} 
-					subtitle="Target: Rp 200M"
+					title="Net Worth" 
+					value={formatIDR(periodNetWorthChange)} 
+					subtitle={`${timePeriod} Change`}
 				>
 					<div class="mt-5 h-[50px] flex items-end gap-1">
 						<div class="bg-black w-1 h-[40%]"></div>
@@ -252,11 +272,11 @@
 					</div>
 				</MetricCard>
 
-				<!-- Monthly Expenses -->
+				<!-- Expenses -->
 				<MetricCard 
-					title="Monthly Expenses" 
-					value={formatIDR(monthlyExpenses)} 
-					subtitle="Expenses"
+					title="Expenses" 
+					value={formatIDR(periodExpenses)} 
+					subtitle={`${timePeriod} Total`}
 				>
 					<div class="mt-5 flex gap-2.5 flex-wrap text-xs">
 						<div class="flex items-center gap-1">
@@ -274,32 +294,29 @@
 					</div>
 				</MetricCard>
 
-				<!-- Investments -->
+				<!-- Income -->
 				<MetricCard 
-					title="Investments" 
-					value={formatIDR(totalInvestments)} 
-					subtitle="Portfolio Value"
+					title="Income" 
+					value={formatIDR(periodIncome)} 
+					subtitle={`${timePeriod} Total`}
 				>
 					<div class="mt-5 h-1 bg-gray-200 w-full rounded-sm">
 						<div class="w-[70%] bg-black h-full rounded-sm"></div>
 					</div>
 				</MetricCard>
 
-				<!-- Insight -->
+				<!-- Savings Goal -->
 				<MetricCard 
-					title="Insight" 
-					value="" 
-					subtitle=""
+					title="Savings Goal" 
+					value={formatIDR(netWorth)} 
+					subtitle={`Target: ${formatIDR(SAVINGS_TARGET)}`}
 					expandable={false}
 				>
-					<div class="text-center text-sm mt-2.5">
-						Spending on food decreased by 15%
+					<div class="mt-5 h-1 bg-gray-200 w-full rounded-sm">
+						<div style="width: {Math.min((netWorth / SAVINGS_TARGET) * 100, 100)}%" class="bg-black h-full rounded-sm transition-all"></div>
 					</div>
-					<div class="mt-5 h-[60px] border-t-[10px] border-black rounded-t-[60px] relative">
-					</div>
-					<div class="flex justify-between text-sm font-bold">
-						<span>Rp 5.6M</span>
-						<span>Rp 9.3M</span>
+					<div class="flex justify-between text-xs mt-2 text-text-secondary">
+						<span>{Math.min(Math.round((netWorth / SAVINGS_TARGET) * 100), 100)}% of goal</span>
 					</div>
 				</MetricCard>
 			</div>
