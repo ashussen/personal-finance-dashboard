@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .vite
+REFACTORING_SUMMARY.md
 
 # Generated transaction data
 transactions.csv

@@ -1,5 +1,8 @@
 <script>
-	import Header from '$lib/components/Header.svelte';
+	import PageLayout from '$lib/components/PageLayout.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
+	import { formatIDR, formatDateID } from '$lib/utils/formatters';
+	import { CATEGORIES } from '$lib/utils/constants';
 
 	// Sample data based on transactions.csv structure
 	let transactions = [
@@ -40,40 +43,17 @@
 	function handleDragLeave(event) {
 		isDragging = false;
 	}
-
-	function formatIDR(amount) {
-		return new Intl.NumberFormat('id-ID', {
-			style: 'currency',
-			currency: 'IDR',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(amount);
-	}
-
-	function formatDate(dateStr) {
-		const date = new Date(dateStr);
-		return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-	}
 </script>
 
-<div class="min-h-screen bg-bg-light p-5">
-	<div class="bg-white rounded-3xl min-h-[90vh] p-6 md:p-8 shadow-lg relative overflow-hidden">
-		<Header />
+<PageLayout pageTitle="Import Transactions - Shaft">
+	<PageHeader title="Import Transactions" subtitle="Upload & Review" showActions={false} />
 
-		<!-- Page Title -->
-		<div class="mb-6">
-			<h1 class="font-normal mb-2.5 text-3xl">Import Transactions</h1>
-			<div class="text-text-secondary text-sm">
-				<span class="mr-2.5">● Upload & Review</span>
-			</div>
+	<!-- Upload Section -->
+	<div class="p-5 rounded-2xl bg-white border border-bg-light mb-6">
+		<div class="flex justify-between mb-4">
+			<span class="text-xs text-text-secondary uppercase tracking-wider">Upload Document</span>
+			<i class="fa-solid fa-file-arrow-up text-text-secondary"></i>
 		</div>
-
-		<!-- Upload Section -->
-		<div class="p-5 rounded-2xl bg-white border border-bg-light mb-6">
-			<div class="flex justify-between mb-4">
-				<span class="text-xs text-text-secondary uppercase tracking-wider">Upload Document</span>
-				<i class="fa-solid fa-file-arrow-up text-text-secondary"></i>
-			</div>
 
 			<div 
 				role="button"
@@ -143,7 +123,7 @@
 						<tbody>
 							{#each transactions as transaction, i}
 								<tr class="hover:bg-primary-green/5 transition-colors border-b border-gray-100">
-									<td class="py-3 px-4 text-text-primary text-sm">{formatDate(transaction.date)}</td>
+									<td class="py-3 px-4 text-right font-medium text-sm">{formatDateID(transaction.date)}</td>
 									<td class="py-3 px-4">
 										<div class="text-sm text-text-secondary">{transaction.account}</div>
 									</td>
@@ -155,13 +135,9 @@
 											value={transaction.category}
 											class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
 										>
-											<option value="Food">Food</option>
-											<option value="Transport">Transport</option>
-											<option value="Shopping">Shopping</option>
-											<option value="Bills">Bills</option>
-											<option value="Salary">Salary</option>
-											<option value="Investment">Investment</option>
-											<option value="Entertainment">Entertainment</option>
+											{#each CATEGORIES as cat}
+												<option value={cat}>{cat}</option>
+											{/each}
 										</select>
 									</td>
 									<td class="py-3 px-4 text-right">
@@ -195,5 +171,4 @@
 				</button>
 			</div>
 		</div>
-	</div>
-</div>
+	</PageLayout>

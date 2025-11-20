@@ -1,22 +1,13 @@
 <script>
+	import { formatIDR, formatDate } from '$lib/utils/formatters';
+	import { CATEGORIES } from '$lib/utils/constants';
+	import Pagination from './Pagination.svelte';
+	
 	export let transactions = [];
 	
 	let currentPage = 1;
 	const rowsPerPage = 15;
 	
-	// Available categories for the dropdown
-	const categories = [
-		'Food & Grocery',
-		'Investment',
-		'Shopping',
-		'Travelling',
-		'Miscellaneous',
-		'Bill & Subscription',
-		'Entertainment',
-		'Healthcare',
-		'Transportation',
-		'Education'
-	];
 	
 	// Track editing state for each row
 	let editingRows = {};
@@ -27,34 +18,9 @@
 	$: end = start + rowsPerPage;
 	$: pageData = transactions.slice(start, end);
 	
-	function formatIDR(amount) {
-		return new Intl.NumberFormat('id-ID', {
-			style: 'currency',
-			currency: 'IDR',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(amount);
-	}
 	
-	function formatDate(dateStr) {
-		const date = new Date(dateStr);
-		return date.toLocaleDateString('en-US', { 
-			year: 'numeric', 
-			month: 'short', 
-			day: 'numeric' 
-		});
-	}
-	
-	function nextPage() {
-		if (currentPage < totalPages) {
-			currentPage++;
-		}
-	}
-	
-	function prevPage() {
-		if (currentPage > 1) {
-			currentPage--;
-		}
+	function handlePageChange(page) {
+		currentPage = page;
 	}
 	
 	function startEditing(index, tx) {
@@ -149,7 +115,7 @@
 										on:change={(e) => updateCategory(index, e.target.value)}
 										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
 									>
-										{#each categories as cat}
+										{#each CATEGORIES as cat}
 											<option value={cat}>{cat}</option>
 										{/each}
 									</select>
@@ -213,23 +179,5 @@
 		</div>
 	</div>
 	
-	<div class="flex justify-between items-center mt-4 text-text-secondary text-sm">
-		<button 
-			on:click={prevPage}
-			disabled={currentPage === 1}
-			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
-		>
-			<i class="fa-solid fa-chevron-left text-xs"></i>
-			Previous
-		</button>
-		<span class="text-sm">Page {currentPage} of {totalPages}</span>
-		<button 
-			on:click={nextPage}
-			disabled={currentPage === totalPages}
-			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
-		>
-			Next
-			<i class="fa-solid fa-chevron-right text-xs"></i>
-		</button>
-	</div>
+	<Pagination {currentPage} {totalPages} onPageChange={handlePageChange} />
 </div>

@@ -241,7 +241,7 @@
 			<i class="fa-solid fa-expand cursor-pointer"></i>
 		</div>
 	</div>
-	<div class="flex-1 w-full min-h-0 relative">
+	<div class="flex-1 w-full min-h-0">
 		<canvas bind:this={chartCanvas} class="w-full h-full"></canvas>
 	</div>
 </div>

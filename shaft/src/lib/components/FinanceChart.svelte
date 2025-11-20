@@ -8,10 +8,6 @@
 	let chartInstance;
 
 	onMount(() => {
-		if (chartCanvas && data.length > 0) {
-			updateChart(data);
-		}
-		
 		return () => {
 			if (chartInstance) {
 				chartInstance.destroy();
@@ -19,7 +15,8 @@
 		};
 	});
 
-	$: if (chartCanvas && data.length > 0) {
+	// Only update when chartCanvas is available and data changes
+	$: if (chartCanvas && data && data.length > 0) {
 		updateChart(data);
 	}
 
@@ -215,6 +212,4 @@
 	}
 </script>
 
-<div class="h-[400px] block">
-	<canvas bind:this={chartCanvas}></canvas>
-</div>
+<canvas bind:this={chartCanvas} class="w-full h-full"></canvas>
