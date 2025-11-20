@@ -19,9 +19,9 @@
 		<a href="/expenses" class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all {currentPath === '/expenses' ? 'bg-text-black text-white' : 'text-text-secondary hover:bg-text-black hover:text-white'}">
 			<i class="fa-solid fa-wallet"></i>
 		</a>
-		<div class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer text-text-secondary transition-all hover:bg-text-black hover:text-white">
-			<i class="fa-solid fa-bolt"></i>
-		</div>
+		<a href="/import" class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all {currentPath === '/import' ? 'bg-text-black text-white' : 'text-text-secondary hover:bg-text-black hover:text-white'}">
+			<i class="fa-solid fa-file-arrow-up"></i>
+		</a>
 		<div class="w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer text-text-secondary transition-all hover:bg-text-black hover:text-white">
 			<i class="fa-solid fa-briefcase"></i>
 		</div>
