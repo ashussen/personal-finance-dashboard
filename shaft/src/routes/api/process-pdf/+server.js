@@ -1,8 +1,9 @@
 import { json } from '@sveltejs/kit';
+import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY
+	apiKey: OPENAI_API_KEY
 });
 
 /** @type {import('./$types').RequestHandler} */
@@ -15,62 +16,61 @@ export async function POST({ request }) {
 			return json({ error: 'No file provided' }, { status: 400 });
 		}
 
-		// Convert PDF to base64
-		const arrayBuffer = await file.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
-		const base64Pdf = buffer.toString('base64');
-
-		// Send PDF directly to ChatGPT using vision API
-		const completion = await openai.chat.completions.create({
-			model: 'gpt-4o-mini',
-			messages: [
-				{
-					role: 'system',
-					content: `You are a financial transaction parser. Extract transaction data from bank statements and return ONLY a valid JSON array. Each transaction should have:
-- date (YYYY-MM-DD format)
-- details (transaction description)
-- amount (number, negative for expenses, positive for income)
-- account (bank/payment method name)
-- category (one of: Food, Transport, Shopping, Bills, Entertainment, Investment, Salary, Other)
-
-Return ONLY the JSON array, no markdown formatting, no explanations.`
-				},
-				{
-					role: 'user',
-					content: [
-						{
-							type: 'text',
-							text: 'Parse all transactions from this bank statement PDF:'
-						},
-						{
-							type: 'image_url',
-							image_url: {
-								url: `data:application/pdf;base64,${base64Pdf}`
-							}
-						}
-					]
-				}
-			],
-			temperature: 0.1,
-			max_tokens: 2000
+		// Upload the PDF file to OpenAI
+		const uploadedFile = await openai.files.create({
+			file: file,
+			purpose: 'assistants'
 		});
 
-		const responseText = completion.choices[0].message.content.trim();
+		// Use the Responses API with the uploaded file
+		const response = await fetch('https://api.openai.com/v1/responses', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${OPENAI_API_KEY}`
+			},
+			body: JSON.stringify({
+				model: 'gpt-4o-mini',
+				input: [
+					{
+						role: 'user',
+						content: [
+							{
+								type: 'input_text',
+								text: 'Extract all transactions from this bank statement and return them as a JSON array. Each transaction should have: date (YYYY-MM-DD), details, amount (negative for expenses), account, and category (Food, Transport, Shopping, Bills, Entertainment, Investment, Salary, Other). Return ONLY valid JSON.'
+							},
+							{
+								type: 'input_file',
+								file_id: uploadedFile.id
+							}
+						]
+					}
+				]
+			})
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+		}
+
+		const result = await response.json();
+		
+		// Extract the text from the response
+		const textContent = result.output?.[0]?.content?.[0]?.text || '';
+		console.log('Raw text from API:', textContent);
 		
 		// Remove markdown code blocks if present
-		let jsonText = responseText;
+		let jsonText = textContent.trim();
 		if (jsonText.startsWith('```json')) {
 			jsonText = jsonText.replace(/^```json\n/, '').replace(/\n```$/, '');
 		} else if (jsonText.startsWith('```')) {
 			jsonText = jsonText.replace(/^```\n/, '').replace(/\n```$/, '');
 		}
-
-		// Parse the JSON response
+		
+		// Parse the JSON
 		const transactions = JSON.parse(jsonText);
-
-		if (!Array.isArray(transactions)) {
-			return json({ error: 'Invalid response format from AI' }, { status: 500 });
-		}
+		console.log('Parsed transactions:', transactions.length, 'items');
 
 		return json({ 
 			success: true, 
