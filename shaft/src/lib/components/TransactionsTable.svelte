@@ -43,53 +43,57 @@
 <div class="mt-10">
 	<h2 class="mb-5 text-2xl">Recent Transactions</h2>
 	
-	<div class="bg-white rounded-2xl p-6 shadow-sm border border-bg-light">
-		<table class="w-full border-collapse">
-			<thead>
-				<tr>
-					<th class="text-left py-4 px-5 text-text-secondary font-semibold border-b border-bg-light text-sm">Date</th>
-					<th class="text-left py-4 px-5 text-text-secondary font-semibold border-b border-bg-light text-sm">Details</th>
-					<th class="text-left py-4 px-5 text-text-secondary font-semibold border-b border-bg-light text-sm">Category</th>
-					<th class="text-right py-4 px-5 text-text-secondary font-semibold border-b border-bg-light text-sm">Amount</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each pageData as tx}
-					<tr class="hover:bg-primary-green/5 transition-colors">
-						<td class="py-5 px-5 border-b border-bg-light text-text-primary text-sm">{formatDate(tx.date)}</td>
-						<td class="py-5 px-5 border-b border-bg-light">
-							<div class="font-semibold text-sm">{tx.details}</div>
-							<div class="text-xs text-text-secondary">{tx.account}</div>
-						</td>
-						<td class="py-5 px-5 border-b border-bg-light">
-							<span class="bg-bg-light py-1 px-3 rounded-full text-xs font-medium">
-								{tx.category}
-							</span>
-						</td>
-						<td class="py-5 px-5 border-b border-bg-light text-right {tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">
-							{tx.amount > 0 ? '+' : ''}{formatIDR(tx.amount)}
-						</td>
+	<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-bg-light">
+		<div class="overflow-x-auto">
+			<table class="w-full border-collapse">
+				<thead>
+					<tr class="bg-bg-light">
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Date</th>
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Details</th>
+						<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Category</th>
+						<th class="text-right py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Amount</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					{#each pageData as tx}
+						<tr class="hover:bg-primary-green/5 transition-colors border-b border-gray-100">
+							<td class="py-3 px-4 text-text-primary text-sm">{formatDate(tx.date)}</td>
+							<td class="py-3 px-4">
+								<div class="font-medium text-sm text-text-primary">{tx.details}</div>
+								<div class="text-xs text-text-secondary">{tx.account}</div>
+							</td>
+							<td class="py-3 px-4">
+								<span class="text-text-primary text-sm font-medium">{tx.category}</span>
+							</td>
+							<td class="py-3 px-4 text-right">
+								<span class="{tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">
+									{tx.amount > 0 ? '+' : ''}{formatIDR(tx.amount)}
+								</span>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
 	
-	<div class="flex justify-end items-center gap-4 mt-6 text-text-secondary text-sm">
+	<div class="flex justify-between items-center mt-4 text-text-secondary text-sm">
 		<button 
 			on:click={prevPage}
 			disabled={currentPage === 1}
-			class="w-8 h-8 rounded-lg border border-border-color bg-white text-text-primary flex items-center justify-center transition-all hover:bg-text-black hover:text-white hover:border-text-black disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-bg-light disabled:hover:bg-bg-light disabled:hover:text-text-primary"
+			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
 		>
-			<i class="fa-solid fa-chevron-left"></i>
+			<i class="fa-solid fa-chevron-left text-xs"></i>
+			Previous
 		</button>
-		<span>Page {currentPage} of {totalPages}</span>
+		<span class="text-sm">Page {currentPage} of {totalPages}</span>
 		<button 
 			on:click={nextPage}
 			disabled={currentPage === totalPages}
-			class="w-8 h-8 rounded-lg border border-border-color bg-white text-text-primary flex items-center justify-center transition-all hover:bg-text-black hover:text-white hover:border-text-black disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-bg-light disabled:hover:bg-bg-light disabled:hover:text-text-primary"
+			class="px-4 py-2 rounded-lg border border-bg-light bg-white text-text-primary flex items-center gap-2 transition-all hover:bg-bg-light disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-sm"
 		>
-			<i class="fa-solid fa-chevron-right"></i>
+			Next
+			<i class="fa-solid fa-chevron-right text-xs"></i>
 		</button>
 	</div>
 </div>
