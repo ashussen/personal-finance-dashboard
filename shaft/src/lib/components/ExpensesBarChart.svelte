@@ -2,12 +2,21 @@
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
 
+	export let transactions = [];
+
 	let chartCanvas;
 	let chartInstance;
 
+	$: if (transactions.length > 0 && chartCanvas) {
+		if (chartInstance) {
+			updateChart();
+		} else {
+			initBarChart();
+		}
+	}
+
 	onMount(() => {
-		initBarChart();
-		
+		// Cleanup on destroy
 		return () => {
 			if (chartInstance) {
 				chartInstance.destroy();
@@ -15,11 +24,46 @@
 		};
 	});
 
+	function processData() {
+		const monthlyData = {};
+		
+		transactions.forEach(tx => {
+			if (tx.amount < 0) { // Only expenses
+				const date = new Date(tx.date);
+				const monthYear = date.toLocaleString('default', { month: 'short', year: '2-digit' }); // e.g. "Nov 25"
+				// Use a sortable key to order months correctly: YYYY-MM
+				const sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+				
+				if (!monthlyData[sortKey]) {
+					monthlyData[sortKey] = {
+						label: monthYear,
+						total: 0
+					};
+				}
+				monthlyData[sortKey].total += Math.abs(tx.amount);
+			}
+		});
+
+		// Sort by date (key) and take the last 6 months (or more if fit)
+		const sortedKeys = Object.keys(monthlyData).sort();
+		const limitedKeys = sortedKeys.slice(-6); // Show last 6 months
+
+		return {
+			labels: limitedKeys.map(key => monthlyData[key].label),
+			data: limitedKeys.map(key => monthlyData[key].total)
+		};
+	}
+
+	function updateChart() {
+		const { labels, data } = processData();
+		chartInstance.data.labels = labels;
+		chartInstance.data.datasets[0].data = data;
+		chartInstance.update();
+	}
+
 	function initBarChart() {
 		const ctx = chartCanvas.getContext('2d');
-		
-		const labels = ['Dec', 'Feb', 'Mar', 'Apr', 'May', 'Jan'];
-		const data = [45, 80, 30, 60, 85, 65];
+		const { labels, data } = processData();
 
 		chartInstance = new Chart(ctx, {
 			type: 'bar',
@@ -59,8 +103,12 @@
 						borderWidth: 1,
 						displayColors: false,
 						callbacks: {
-							title: (context) => context[0].formattedValue,
-							label: (context) => context.label
+							title: (context) => context[0].label,
+							label: (context) => new Intl.NumberFormat('id-ID', {
+								style: 'currency',
+								currency: 'IDR',
+								maximumFractionDigits: 0
+							}).format(context.raw)
 						}
 					}
 				},
@@ -68,7 +116,6 @@
 					y: {
 						display: false,
 						beginAtZero: true,
-						max: 100
 					},
 					x: {
 						grid: {
@@ -80,7 +127,6 @@
 								family: 'Urbanist',
 								size: 10
 							},
-							maxTicksLimit: 8
 						},
 						border: {
 							display: false

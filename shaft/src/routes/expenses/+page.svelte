@@ -70,10 +70,10 @@
 			<!-- Expenses Content Grid -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				<!-- Left Column: Bar Chart -->
-				<ExpensesBarChart />
+				<ExpensesBarChart transactions={allTransactions} />
 
 				<!-- Right Column: Donut Chart -->
-				<ExpensesDonutChart />
+				<ExpensesDonutChart transactions={allTransactions} />
 			</div>
 			
 			<!-- Expenses Table -->

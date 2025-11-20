@@ -2,20 +2,55 @@
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
 
+	export let transactions = [];
+
 	let chartCanvas;
 	let chartInstance;
+	let chartData = [];
 
-	const chartData = [
-		{ label: 'Food & Grocery', value: 6156000, color: '#000000' },
-		{ label: 'Investment', value: 5000000, color: '#2B2B2B' },
-		{ label: 'Shopping', value: 4356000, color: '#555555' },
-		{ label: 'Travelling', value: 3670000, color: '#808080' },
-		{ label: 'Miscellaneous', value: 2749000, color: '#AAAAAA' },
-		{ label: 'Bill & Subscription', value: 2162000, color: '#D3D2D4' }
-	];
+	// Color palette for categories (grayscale from black to light gray)
+	const colorPalette = ['#000000', '#2B2B2B', '#555555', '#808080', '#AAAAAA', '#D3D2D4', '#E5E5E5', '#F0F0F0'];
+
+	$: if (transactions.length > 0) {
+		calculateCategoryData();
+	}
+
+	function calculateCategoryData() {
+		// Group transactions by category and sum negative amounts (expenses)
+		const categoryTotals = {};
+		
+		transactions.forEach(tx => {
+			if (tx.amount < 0) { // Only count expenses (negative amounts)
+				const category = tx.category;
+				if (!categoryTotals[category]) {
+					categoryTotals[category] = 0;
+				}
+				categoryTotals[category] += Math.abs(tx.amount);
+			}
+		});
+
+		// Convert to array and sort by value (descending)
+		chartData = Object.entries(categoryTotals)
+			.map(([label, value], index) => ({
+				label,
+				value,
+				color: colorPalette[index % colorPalette.length]
+			}))
+			.sort((a, b) => b.value - a.value);
+
+		// Reinitialize chart with new data
+		if (chartInstance) {
+			chartInstance.destroy();
+		}
+		if (chartCanvas) {
+			initDonutChart();
+		}
+	}
 
 	onMount(() => {
-		initDonutChart();
+		if (transactions.length > 0) {
+			calculateCategoryData();
+		}
 		
 		return () => {
 			if (chartInstance) {
@@ -25,6 +60,8 @@
 	});
 
 	function initDonutChart() {
+		if (!chartData || chartData.length === 0) return;
+		
 		const ctx = chartCanvas.getContext('2d');
 		
 		// Find the index of the largest value
