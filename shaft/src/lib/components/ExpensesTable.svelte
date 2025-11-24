@@ -124,11 +124,11 @@
 										type="number"
 										value={getEditValue(index, 'amount') ?? tx.amount}
 										on:input={(e) => updateAmount(index, e.target.value)}
-										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm text-right focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
+										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm text-right font-mono focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
 										step="0.01"
 									/>
 								{:else}
-									<span class="{tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">
+									<span class="{tx.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
 										{tx.amount > 0 ? '+' : ''}{formatIDR(tx.amount)}
 									</span>
 								{/if}

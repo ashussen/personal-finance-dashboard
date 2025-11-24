@@ -304,7 +304,6 @@
 						<i class="fa-solid fa-spinner fa-spin"></i>
 						Categorizing...
 					{:else}
-						<i class="fa-solid fa-wand-magic-sparkles"></i>
 						Extract & Categorize
 					{/if}
 				</button>
@@ -318,7 +317,7 @@
 				<h2 class="text-2xl">Review Transactions</h2>
 				{#if transactions.length > 0}
 					<button 
-						class="px-4 py-2 bg-primary-green text-white rounded-lg text-sm hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+						class="px-4 py-2 bg-text-black text-white rounded-lg text-sm hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 						on:click={categorizeTransactions}
 						disabled={isCategorizing}
 					>
@@ -363,7 +362,7 @@
 										/>
 									</td>
 									<td class="py-3 px-4 text-right">
-										<span class="{transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">
+										<span class="{transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
 											{transaction.amount > 0 ? '+' : ''}{formatIDR(transaction.amount)}
 										</span>
 									</td>
