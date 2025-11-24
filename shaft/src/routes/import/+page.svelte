@@ -16,6 +16,10 @@
 	
 	const CACHE_KEY = 'pending_transactions';
 	
+	// Reactive counts for transactions
+	$: toImportCount = transactions.filter(tx => !tx._markedForDeletion).length;
+	$: markedForDeletionCount = transactions.filter(tx => tx._markedForDeletion).length;
+	
 	onMount(() => {
 		// Check if there's cached data
 		checkCachedData();
@@ -155,23 +159,37 @@
 		}
 	}
 
-	function deleteTransaction(index) {
-		transactions = transactions.filter((_, i) => i !== index);
+	function toggleDeleteTransaction(index) {
+		// Toggle the _markedForDeletion flag
+		transactions[index]._markedForDeletion = !transactions[index]._markedForDeletion;
+		transactions = [...transactions]; // Trigger reactivity
+		saveToCache(transactions); // Update cache
 	}
 
 	function updateCategory(index, newCategory) {
 		transactions[index].category = newCategory;
+		saveToCache(transactions); // Update cache when category changes
 	}
 
 	async function confirmImport() {
-		if (transactions.length === 0) return;
+		// Filter out transactions marked for deletion
+		const transactionsToImport = transactions.filter(tx => !tx._markedForDeletion);
+		
+		if (transactionsToImport.length === 0) {
+			error = 'No transactions to import';
+			return;
+		}
 		
 		// TODO: Implement actual import to database
-		alert(`Importing ${transactions.length} transactions...`);
+		alert(`Importing ${transactionsToImport.length} transactions...`);
 		// After successful import, you might want to:
-		// - Clear the transactions array
+		// - Clear the transactions array and cache
 		// - Reset the form
 		// - Navigate to another page
+		
+		// Clear cache after successful import
+		clearCache();
+		transactions = [];
 	}
 </script>
 
@@ -347,37 +365,41 @@
 						</thead>
 						<tbody>
 							{#each transactions as transaction, i}
-								<tr class="hover:bg-primary-green/5 transition-colors border-b border-gray-100">
-									<td class="py-3 px-4 text-right font-medium text-sm">{formatDateID(transaction.date)}</td>
-									<td class="py-3 px-4">
-										<div class="text-sm text-text-secondary">{transaction.account}</div>
-									</td>
-									<td class="py-3 px-4">
-										<div class="font-medium text-sm text-text-primary">{transaction.details}</div>
-									</td>
-									<td class="py-3 px-4">
+							<tr class="transition-colors border-b border-gray-100 {transaction._markedForDeletion ? 'bg-gray-100 opacity-50' : 'hover:bg-primary-green/5'}">
+								<td class="py-3 px-4 text-right font-medium text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
+								<td class="py-3 px-4">
+									<div class="text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : 'text-text-secondary'}">{transaction.account}</div>
+								</td>
+								<td class="py-3 px-4">
+									<div class="font-medium text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : 'text-text-primary'}">{transaction.details}</div>
+								</td>
+								<td class="py-3 px-4">
+									{#if transaction._markedForDeletion}
+										<span class="text-sm text-gray-400 line-through">{transaction.category}</span>
+									{:else}
 										<CategoryDropdown 
 											value={transaction.category}
 											onChange={(newCategory) => updateCategory(i, newCategory)}
 										/>
-									</td>
-									<td class="py-3 px-4 text-right">
-										<span class="{transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
-											{transaction.amount > 0 ? '+' : ''}{formatIDR(transaction.amount)}
-										</span>
-									</td>
-									<td class="py-3 px-4">
-										<div class="flex items-center justify-center gap-1.5">
-											<button
-												class="w-8 h-8 rounded flex items-center justify-center hover:bg-bg-light text-text-secondary transition-colors"
-												title="Delete"
-												on:click={() => deleteTransaction(i)}
-											>
-												<i class="fa-solid fa-trash text-sm"></i>
-											</button>
-										</div>
-									</td>
-								</tr>
+									{/if}
+								</td>
+								<td class="py-3 px-4 text-right">
+									<span class="{transaction._markedForDeletion ? 'text-gray-400 line-through' : transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
+										{transaction.amount > 0 ? '+' : ''}{formatIDR(transaction.amount)}
+									</span>
+								</td>
+								<td class="py-3 px-4">
+									<div class="flex items-center justify-center gap-1.5">
+										<button
+											class="w-8 h-8 rounded flex items-center justify-center transition-colors {transaction._markedForDeletion ? 'hover:bg-green-100 text-green-600' : 'hover:bg-red-100 text-red-600'}"
+											title={transaction._markedForDeletion ? 'Restore' : 'Mark for deletion'}
+											on:click={() => toggleDeleteTransaction(i)}
+										>
+											<i class="fa-solid {transaction._markedForDeletion ? 'fa-rotate-left' : 'fa-trash'} text-sm"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
 							{/each}
 						</tbody>
 					</table>
@@ -388,12 +410,16 @@
 				<div class="flex justify-between items-center mt-4 text-text-secondary text-sm">
 					<div class="text-sm">
 						Showing <span class="font-semibold text-text-black">{transactions.length}</span> transactions
+						{#if markedForDeletionCount > 0}
+							<span class="text-red-600">({markedForDeletionCount} marked for deletion, {toImportCount} to import)</span>
+						{/if}
 					</div>
 					<button 
-						class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+						class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 						on:click={confirmImport}
+						disabled={toImportCount === 0}
 					>
-						Confirm & Import
+						Confirm & Import ({toImportCount})
 					</button>
 				</div>
 			{:else}
