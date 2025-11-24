@@ -18,18 +18,51 @@ export const TIME_PERIOD_DAYS = {
 };
 
 export const CATEGORIES = [
-	'Food & Grocery',
-	'Investment',
-	'Shopping',
-	'Travelling',
-	'Miscellaneous',
-	'Bill & Subscription',
-	'Entertainment',
-	'Healthcare',
-	'Transportation',
-	'Education',
-	'Food',
+	'Dining',
+	'Groceries',
 	'Transport',
-	'Bills',
-	'Salary'
+	'Bills & Fees',
+	'Family',
+	'Gifts',
+	'Travel',
+	'Offering',
+	'Entertainment/Shopping',
+	'Work',
+	'Income',
+	'Uncategorised'
+];
+
+export const CATEGORY_GROUPS = [
+	{
+		label: 'Essential',
+		categories: [
+			{ name: 'Dining', icon: 'fa-utensils' },
+			{ name: 'Groceries', icon: 'fa-basket-shopping' },
+			{ name: 'Transport', icon: 'fa-car' },
+			{ name: 'Bills & Fees', icon: 'fa-file-invoice-dollar' }
+		]
+	},
+	{
+		label: 'Personal',
+		categories: [
+			{ name: 'Family', icon: 'fa-people-roof' },
+			{ name: 'Gifts', icon: 'fa-gift' },
+			{ name: 'Travel', icon: 'fa-plane' },
+			{ name: 'Offering', icon: 'fa-hand-holding-heart' },
+			{ name: 'Entertainment/Shopping', icon: 'fa-bag-shopping' }
+		]
+	},
+	{
+		label: 'Financial',
+		categories: [
+			{ name: 'Work', icon: 'fa-briefcase' },
+			{ name: 'Income', icon: 'fa-money-bill-trend-up' }
+		]
+	},
+	{
+		label: 'Other',
+		categories: [
+			{ name: 'Uncategorised', icon: 'fa-question' }
+		]
+	}
 ];

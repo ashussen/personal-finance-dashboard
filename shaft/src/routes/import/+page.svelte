@@ -1,8 +1,8 @@
 <script>
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
+	import CategoryDropdown from '$lib/components/CategoryDropdown.svelte';
 	import { formatIDR, formatDateID } from '$lib/utils/formatters';
-	import { CATEGORIES } from '$lib/utils/constants';
 
 	let transactions = [];
 	let selectedFile = null;
@@ -234,15 +234,10 @@
 										<div class="font-medium text-sm text-text-primary">{transaction.details}</div>
 									</td>
 									<td class="py-3 px-4">
-										<select 
+										<CategoryDropdown 
 											value={transaction.category}
-											on:change={(e) => updateCategory(i, e.target.value)}
-											class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
-										>
-											{#each CATEGORIES as cat}
-												<option value={cat}>{cat}</option>
-											{/each}
-										</select>
+											onChange={(newCategory) => updateCategory(i, newCategory)}
+										/>
 									</td>
 									<td class="py-3 px-4 text-right">
 										<span class="{transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm">

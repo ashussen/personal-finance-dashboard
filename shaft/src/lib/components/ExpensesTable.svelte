@@ -1,6 +1,6 @@
 <script>
 	import { formatIDR, formatDate } from '$lib/utils/formatters';
-	import { CATEGORIES } from '$lib/utils/constants';
+	import CategoryDropdown from './CategoryDropdown.svelte';
 	import Pagination from './Pagination.svelte';
 	
 	export let transactions = [];
@@ -110,15 +110,10 @@
 							</td>
 							<td class="py-3 px-4">
 								{#if isEditing(index)}
-									<select 
+									<CategoryDropdown 
 										value={getEditValue(index, 'category') || tx.category}
-										on:change={(e) => updateCategory(index, e.target.value)}
-										class="w-full bg-white border border-text-secondary rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-text-black focus:ring-1 focus:ring-text-black"
-									>
-										{#each CATEGORIES as cat}
-											<option value={cat}>{cat}</option>
-										{/each}
-									</select>
+										onChange={(newCategory) => updateCategory(index, newCategory)}
+									/>
 								{:else}
 									<span class="text-text-primary text-sm font-medium">{tx.category}</span>
 								{/if}
