@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import CategoryDropdown from '$lib/components/CategoryDropdown.svelte';
@@ -8,8 +9,42 @@
 	let selectedFile = null;
 	let isDragging = false;
 	let isProcessing = false;
+	let isCategorizing = false;
 	let error = null;
 	let successMessage = null;
+	let hasCachedData = false;
+	
+	const CACHE_KEY = 'pending_transactions';
+	
+	onMount(() => {
+		// Check if there's cached data
+		checkCachedData();
+	});
+	
+	function checkCachedData() {
+		const cached = localStorage.getItem(CACHE_KEY);
+		hasCachedData = !!cached;
+	}
+	
+	function saveToCache(data) {
+		localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+		hasCachedData = true;
+	}
+	
+	function loadFromCache() {
+		const cached = localStorage.getItem(CACHE_KEY);
+		if (cached) {
+			transactions = JSON.parse(cached);
+			successMessage = `Loaded ${transactions.length} transactions from cache`;
+		}
+	}
+	
+	function clearCache() {
+		localStorage.removeItem(CACHE_KEY);
+		hasCachedData = false;
+		transactions = [];
+		successMessage = 'Cache cleared';
+	}
 
 	function handleFileSelect(event) {
 		const file = event.target.files[0];
@@ -42,7 +77,7 @@
 		isDragging = false;
 	}
 
-	async function processDocument() {
+	async function extractPDF() {
 		if (!selectedFile) return;
 
 		isProcessing = true;
@@ -53,7 +88,7 @@
 			const formData = new FormData();
 			formData.append('file', selectedFile);
 
-			const response = await fetch('/api/process-pdf', {
+			const response = await fetch('/api/extract-pdf', {
 				method: 'POST',
 				body: formData
 			});
@@ -61,21 +96,62 @@
 			const data = await response.json();
 
 			if (!response.ok) {
-				throw new Error(data.error || 'Failed to process PDF');
+				throw new Error(data.error || 'Failed to extract PDF');
 			}
 
 			if (data.success && data.transactions) {
 				transactions = data.transactions;
-				successMessage = `Successfully extracted ${data.transactions.length} transactions`;
+				saveToCache(data.transactions);
+				successMessage = `Successfully extracted ${data.transactions.length} transactions. Now categorizing...`;
+				
+				// Automatically start categorization
+				await categorizeTransactions();
 			} else {
 				throw new Error('Invalid response from server');
 			}
 
 		} catch (err) {
-			error = err.message || 'Failed to process document';
-			console.error('Processing error:', err);
+			error = err.message || 'Failed to extract document';
+			console.error('Extraction error:', err);
 		} finally {
 			isProcessing = false;
+		}
+	}
+	
+	async function categorizeTransactions() {
+		if (transactions.length === 0) return;
+
+		isCategorizing = true;
+		error = null;
+
+		try {
+			const response = await fetch('/api/categorize', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ transactions })
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to categorize transactions');
+			}
+
+			if (data.success && data.transactions) {
+				transactions = data.transactions;
+				saveToCache(data.transactions);
+				successMessage = `Successfully categorized ${data.transactions.length} transactions`;
+			} else {
+				throw new Error('Invalid response from server');
+			}
+
+		} catch (err) {
+			error = err.message || 'Failed to categorize transactions';
+			console.error('Categorization error:', err);
+		} finally {
+			isCategorizing = false;
 		}
 	}
 
@@ -101,6 +177,33 @@
 
 <PageLayout pageTitle="Import Transactions - Shaft">
 	<PageHeader title="Import Transactions" subtitle="Upload & Review" showActions={false} />
+
+	<!-- Cache Controls -->
+	{#if hasCachedData && transactions.length === 0}
+		<div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<i class="fa-solid fa-database text-blue-500 text-xl"></i>
+				<div>
+					<p class="text-sm font-semibold text-blue-800">Cached Transactions Available</p>
+					<p class="text-xs text-blue-600">You have previously extracted transactions saved</p>
+				</div>
+			</div>
+			<div class="flex gap-2">
+				<button 
+					class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all"
+					on:click={loadFromCache}
+				>
+					<i class="fa-solid fa-download"></i> Load from Cache
+				</button>
+				<button 
+					class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition-all"
+					on:click={clearCache}
+				>
+					<i class="fa-solid fa-trash"></i> Clear
+				</button>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Upload Section -->
 	<div class="p-5 rounded-2xl bg-white border border-bg-light mb-6">
@@ -188,18 +291,21 @@
 		</div>
 
 		{#if selectedFile}
-			<div class="mt-4 flex justify-end">
+			<div class="mt-4 flex justify-end gap-3">
 				<button 
 					class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-					on:click={processDocument}
-					disabled={isProcessing}
+					on:click={extractPDF}
+					disabled={isProcessing || isCategorizing}
 				>
 					{#if isProcessing}
 						<i class="fa-solid fa-spinner fa-spin"></i>
-						Processing...
+						Extracting...
+					{:else if isCategorizing}
+						<i class="fa-solid fa-spinner fa-spin"></i>
+						Categorizing...
 					{:else}
 						<i class="fa-solid fa-wand-magic-sparkles"></i>
-						Process Document
+						Extract & Categorize
 					{/if}
 				</button>
 			</div>
@@ -208,7 +314,24 @@
 
 		<!-- Review Table -->
 		<div class="mt-10">
-			<h2 class="mb-5 text-2xl">Review Transactions</h2>
+			<div class="flex justify-between items-center mb-5">
+				<h2 class="text-2xl">Review Transactions</h2>
+				{#if transactions.length > 0}
+					<button 
+						class="px-4 py-2 bg-primary-green text-white rounded-lg text-sm hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+						on:click={categorizeTransactions}
+						disabled={isCategorizing}
+					>
+						{#if isCategorizing}
+							<i class="fa-solid fa-spinner fa-spin"></i>
+							Re-categorizing...
+						{:else}
+							<i class="fa-solid fa-rotate"></i>
+							Re-categorize All
+						{/if}
+					</button>
+				{/if}
+			</div>
 			
 			<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-bg-light">
 				<div class="overflow-x-auto">

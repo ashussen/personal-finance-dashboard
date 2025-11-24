@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
-import { generateCategorizationPrompt } from '$lib/utils/constants.js';
 
 const openai = new OpenAI({
 	apiKey: OPENAI_API_KEY
@@ -10,7 +9,7 @@ const openai = new OpenAI({
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
 	const startTime = Date.now();
-	console.log('\n=== PDF Processing Request Started ===');
+	console.log('\n=== PDF Extraction Request Started ===');
 	console.log('Timestamp:', new Date().toISOString());
 	
 	try {
@@ -28,8 +27,8 @@ export async function POST({ request }) {
 			purpose: 'assistants'
 		});
 
-		// Build the prompt text
-		const promptText = `Analyze this Indonesian bank statement PDF and extract ALL transaction data with MAXIMUM ACCURACY, and categorize each transaction.
+		// Build the prompt text (without categorization)
+		const promptText = `Analyze this Indonesian bank statement PDF and extract ALL transaction data with MAXIMUM ACCURACY.
 
 CRITICAL REQUIREMENTS:
 1. COMPLETE DETAILS: Capture the FULL transaction description including ALL lines of text. Many transactions have multi-line descriptions - you MUST include EVERY line, word, and number from the description.
@@ -37,7 +36,6 @@ CRITICAL REQUIREMENTS:
 3. Handle Indonesian text and currency formats correctly
 4. Identify the bank name from document header (BCA, Bank Mega, Mandiri, OCBC, etc.)
 5. Extract account number if visible
-6. CATEGORIZE each transaction based on the description
 
 DATE FORMAT:
 - Use YYYY-MM-DD format
@@ -57,15 +55,12 @@ BANK IDENTIFICATION:
 - Mandiri: "Tabungan NOW", "Mandiri" header
 - OCBC: "REKENING KORAN GIRO", "OCBC" header
 
-${generateCategorizationPrompt()}
-
-Return ONLY a valid JSON array with this EXACT structure:
+Return ONLY a valid JSON array with this EXACT structure (NO category field):
 [
   {
     "date": "YYYY-MM-DD",
     "details": "Complete multi-line description with all text",
     "amount": -123456.00,
-    "category": "Groceries",
     "source": "Bank Name",
     "account": "account number if available"
   }
@@ -75,12 +70,12 @@ Do NOT:
 - Skip any part of transaction descriptions
 - Truncate or summarize details
 - Miss any transactions
-- Use categories not in the list above
+- Add category or extra fields
 
 Return ONLY the JSON array, no markdown formatting, no explanations.`;
 
 		// Log the complete prompt
-		console.log('\n--- Complete Prompt ---');
+		console.log('\n--- Extraction Prompt ---');
 		console.log(promptText);
 		console.log('--- End of Prompt ---\n');
 
@@ -147,7 +142,7 @@ Return ONLY the JSON array, no markdown formatting, no explanations.`;
 		const endTime = Date.now();
 		const duration = ((endTime - startTime) / 1000).toFixed(2);
 		
-		console.log('\n--- Processing Results ---');
+		console.log('\n--- Extraction Results ---');
 		console.log('Transactions extracted:', transactions.length);
 		console.log('\n--- Token Usage ---');
 		console.log('Input tokens:', inputTokens.toLocaleString());
@@ -159,7 +154,7 @@ Return ONLY the JSON array, no markdown formatting, no explanations.`;
 		console.log('Total cost: $' + totalCost.toFixed(6));
 		console.log('\n--- Timing ---');
 		console.log('Duration:', duration + 's');
-		console.log('\n=== Request Complete ===\n');
+		console.log('\n=== Extraction Complete ===\n');
 
 		return json({ 
 			success: true, 
@@ -170,13 +165,13 @@ Return ONLY the JSON array, no markdown formatting, no explanations.`;
 		const endTime = Date.now();
 		const duration = ((endTime - startTime) / 1000).toFixed(2);
 		
-		console.error('\n=== Request Failed ===');
+		console.error('\n=== Extraction Failed ===');
 		console.error('Error:', error.message);
 		console.error('Duration:', duration + 's');
 		console.error('========================\n');
 		
 		return json({ 
-			error: 'Failed to process PDF', 
+			error: 'Failed to extract PDF', 
 			details: error.message 
 		}, { status: 500 });
 	}
