@@ -7,6 +7,22 @@
 	let isOpen = false;
 	let dropdownRef;
 	
+	// Keyboard shortcut mapping
+	const keyboardShortcuts = {
+		'd': 'Dining',
+		'g': 'Groceries',
+		't': 'Transport',
+		'b': 'Bills & Fees',
+		'f': 'Family',
+		'i': 'Income',
+		'o': 'Offering',
+		'w': 'Work',
+		'e': 'Entertainment/Shopping',
+		's': 'Gifts', // 's' for preS ents (g is taken by Groceries)
+		'v': 'Travel', // 'v' for traVel (t is taken by Transport)
+		'u': 'Uncategorised'
+	};
+	
 	function toggleDropdown() {
 		isOpen = !isOpen;
 	}
@@ -23,6 +39,25 @@
 		}
 	}
 	
+	function handleKeydown(event) {
+		if (!isOpen) return;
+		
+		const key = event.key.toLowerCase();
+		
+		// Handle Escape to close
+		if (key === 'escape') {
+			isOpen = false;
+			event.preventDefault();
+			return;
+		}
+		
+		// Check if key matches a shortcut
+		if (keyboardShortcuts[key]) {
+			selectCategory(keyboardShortcuts[key]);
+			event.preventDefault();
+		}
+	}
+	
 	function getCategoryIcon(categoryName) {
 		for (const group of CATEGORY_GROUPS) {
 			const category = group.categories.find(cat => cat.name === categoryName);
@@ -31,10 +66,17 @@
 		return 'fa-question';
 	}
 	
+	function getCategoryShortcut(categoryName) {
+		for (const [key, name] of Object.entries(keyboardShortcuts)) {
+			if (name === categoryName) return key.toUpperCase();
+		}
+		return '';
+	}
+	
 	$: selectedIcon = getCategoryIcon(value);
 </script>
 
-<svelte:window on:click={handleClickOutside} />
+<svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
 <div class="relative" bind:this={dropdownRef}>
 	<button
@@ -63,9 +105,12 @@
 							class="w-full px-3 py-2 text-left hover:bg-primary-green/10 transition-colors flex items-center gap-2 {value === category.name ? 'bg-primary-green/20' : ''}"
 						>
 							<i class="fa-solid {category.icon} text-text-secondary w-4"></i>
-							<span class="text-sm text-text-primary">{category.name}</span>
+							<span class="text-sm text-text-primary flex-1">{category.name}</span>
+							<span class="text-xs text-text-secondary bg-gray-100 px-1.5 py-0.5 rounded font-mono">
+								{getCategoryShortcut(category.name)}
+							</span>
 							{#if value === category.name}
-								<i class="fa-solid fa-check text-primary-green ml-auto text-xs"></i>
+								<i class="fa-solid fa-check text-primary-green text-xs"></i>
 							{/if}
 						</button>
 					{/each}
@@ -74,6 +119,14 @@
 					<div class="border-t border-gray-200"></div>
 				{/if}
 			{/each}
+			
+			<!-- Keyboard shortcut hint -->
+			<div class="border-t border-gray-200 px-3 py-2 bg-gray-50">
+				<p class="text-xs text-text-secondary flex items-center gap-1.5">
+					<i class="fa-solid fa-keyboard text-xs"></i>
+					<span>Press the letter key to select • <kbd class="font-mono bg-white px-1 rounded border border-gray-300">ESC</kbd> to close</span>
+				</p>
+			</div>
 		</div>
 	{/if}
 </div>
