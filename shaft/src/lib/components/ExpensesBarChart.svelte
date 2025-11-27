@@ -40,7 +40,7 @@
 		
 		transactions.forEach(tx => {
 			const date = new Date(tx.date);
-			const monthYear = date.toLocaleString('default', { month: 'short', year: '2-digit' }); // e.g. "Nov 25"
+			const monthYear = date.toLocaleString('id-ID', { month: 'short' }) + " '" + date.toLocaleString('id-ID', { year: '2-digit' }); // e.g. "Nov '24"
 			// Use a sortable key to order months correctly: YYYY-MM
 			const sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 			

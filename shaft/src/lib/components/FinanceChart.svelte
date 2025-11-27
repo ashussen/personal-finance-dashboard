@@ -25,7 +25,7 @@
 		
 		const labels = chartData.map(d => {
 			const date = new Date(d.date);
-			return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+			return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 		});
 		const netWorthValues = chartData.map(d => d.balance);
 		

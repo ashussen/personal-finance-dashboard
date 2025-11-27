@@ -1,5 +1,5 @@
 <script>
-	import { formatIDR, formatDate } from '$lib/utils/formatters';
+	import { formatIDR, formatDateID } from '$lib/utils/formatters';
 	import CategoryDropdown from './CategoryDropdown.svelte';
 	import Pagination from './Pagination.svelte';
 	
@@ -101,7 +101,7 @@
 				<tbody>
 					{#each pageData as tx, index}
 						<tr class="hover:bg-primary-green/5 transition-colors border-b border-gray-100">
-							<td class="py-3 px-4 text-text-primary text-sm">{formatDate(tx.date)}</td>
+							<td class="py-3 px-4 text-text-primary text-sm">{formatDateID(tx.date)}</td>
 							<td class="py-3 px-4">
 								<div class="text-sm text-text-secondary">{tx.account}</div>
 							</td>
