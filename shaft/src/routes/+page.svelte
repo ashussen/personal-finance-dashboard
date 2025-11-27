@@ -28,23 +28,13 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('/transactions.csv');
-			const csvText = await response.text();
-			const lines = csvText.trim().split('\n');
+			const response = await fetch('/api/transactions?sortAsc=true');
+			const data = await response.json();
 			
-			allTransactions = lines.slice(1).map(line => {
-				const [date, details, amount, account, category] = line.split(',');
-				return {
-					date,
-					details,
-					amount: parseFloat(amount),
-					account,
-					category
-				};
-			});
-
-			const sortedForCalc = [...allTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-			calculateMetrics(sortedForCalc);
+			if (data.success && data.transactions) {
+				allTransactions = data.transactions;
+				calculateMetrics(allTransactions);
+			}
 		} catch (error) {
 			console.error('Error loading transactions:', error);
 		}

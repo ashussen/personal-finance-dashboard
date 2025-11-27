@@ -10,44 +10,58 @@
 	let isDragging = false;
 	let isProcessing = false;
 	let isCategorizing = false;
+	let isImporting = false;
 	let error = null;
 	let successMessage = null;
-	let hasCachedData = false;
-	
-	const CACHE_KEY = 'pending_transactions';
+	let hasPendingData = false;
+	let currentBatchId = null;
 	
 	// Reactive counts for transactions
-	$: toImportCount = transactions.filter(tx => !tx._markedForDeletion).length;
-	$: markedForDeletionCount = transactions.filter(tx => tx._markedForDeletion).length;
+	$: toImportCount = transactions.filter(tx => !tx.marked_for_deletion).length;
+	$: markedForDeletionCount = transactions.filter(tx => tx.marked_for_deletion).length;
 	
 	onMount(() => {
-		// Check if there's cached data
-		checkCachedData();
+		// Check if there's pending data in database
+		checkPendingData();
 	});
 	
-	function checkCachedData() {
-		const cached = localStorage.getItem(CACHE_KEY);
-		hasCachedData = !!cached;
-	}
-	
-	function saveToCache(data) {
-		localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-		hasCachedData = true;
-	}
-	
-	function loadFromCache() {
-		const cached = localStorage.getItem(CACHE_KEY);
-		if (cached) {
-			transactions = JSON.parse(cached);
-			successMessage = `Loaded ${transactions.length} transactions from cache`;
+	async function checkPendingData() {
+		try {
+			const response = await fetch('/api/pending');
+			const data = await response.json();
+			if (data.success && data.transactions.length > 0) {
+				hasPendingData = true;
+			}
+		} catch (err) {
+			console.error('Error checking pending data:', err);
 		}
 	}
 	
-	function clearCache() {
-		localStorage.removeItem(CACHE_KEY);
-		hasCachedData = false;
-		transactions = [];
-		successMessage = 'Cache cleared';
+	async function loadFromDatabase() {
+		try {
+			const response = await fetch('/api/pending');
+			const data = await response.json();
+			if (data.success && data.transactions.length > 0) {
+				transactions = data.transactions;
+				successMessage = `Loaded ${transactions.length} pending transactions from database`;
+			}
+		} catch (err) {
+			error = 'Failed to load pending transactions';
+			console.error('Error loading pending:', err);
+		}
+	}
+	
+	async function clearPending() {
+		try {
+			await fetch('/api/pending?clearAll=true', { method: 'DELETE' });
+			hasPendingData = false;
+			transactions = [];
+			currentBatchId = null;
+			successMessage = 'Pending transactions cleared';
+		} catch (err) {
+			error = 'Failed to clear pending transactions';
+			console.error('Error clearing pending:', err);
+		}
 	}
 
 	function handleFileSelect(event) {
@@ -105,7 +119,6 @@
 
 			if (data.success && data.transactions) {
 				transactions = data.transactions;
-				saveToCache(data.transactions);
 				successMessage = `Successfully extracted ${data.transactions.length} transactions. Now categorizing...`;
 				
 				// Automatically start categorization
@@ -145,7 +158,10 @@
 
 			if (data.success && data.transactions) {
 				transactions = data.transactions;
-				saveToCache(data.transactions);
+				
+				// Save categorized transactions to pending database
+				await saveToPending(data.transactions);
+				
 				successMessage = `Successfully categorized ${data.transactions.length} transactions`;
 			} else {
 				throw new Error('Invalid response from server');
@@ -158,64 +174,124 @@
 			isCategorizing = false;
 		}
 	}
-
-	function toggleDeleteTransaction(index) {
-		// Toggle the _markedForDeletion flag
-		transactions[index]._markedForDeletion = !transactions[index]._markedForDeletion;
-		transactions = [...transactions]; // Trigger reactivity
-		saveToCache(transactions); // Update cache
+	
+	async function saveToPending(txs) {
+		try {
+			const response = await fetch('/api/pending', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ transactions: txs })
+			});
+			const data = await response.json();
+			if (data.success) {
+				currentBatchId = data.batchId;
+				hasPendingData = true;
+				// Reload to get the database IDs
+				await loadFromDatabase();
+			}
+		} catch (err) {
+			console.error('Error saving to pending:', err);
+		}
 	}
 
-	function updateCategory(index, newCategory) {
-		transactions[index].category = newCategory;
-		saveToCache(transactions); // Update cache when category changes
+	async function toggleDeleteTransaction(index) {
+		const tx = transactions[index];
+		
+		try {
+			await fetch('/api/pending', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: tx.id, action: 'toggleDelete' })
+			});
+			
+			// Update local state
+			transactions[index].marked_for_deletion = !transactions[index].marked_for_deletion;
+			transactions = [...transactions];
+		} catch (err) {
+			error = 'Failed to update transaction';
+			console.error('Error toggling deletion:', err);
+		}
+	}
+
+	async function updateCategory(index, newCategory) {
+		const tx = transactions[index];
+		
+		try {
+			await fetch('/api/pending', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: tx.id, action: 'updateCategory', category: newCategory })
+			});
+			
+			// Update local state
+			transactions[index].category = newCategory;
+			transactions = [...transactions];
+		} catch (err) {
+			error = 'Failed to update category';
+			console.error('Error updating category:', err);
+		}
 	}
 
 	async function confirmImport() {
-		// Filter out transactions marked for deletion
-		const transactionsToImport = transactions.filter(tx => !tx._markedForDeletion);
-		
-		if (transactionsToImport.length === 0) {
+		if (toImportCount === 0) {
 			error = 'No transactions to import';
 			return;
 		}
 		
-		// TODO: Implement actual import to database
-		alert(`Importing ${transactionsToImport.length} transactions...`);
-		// After successful import, you might want to:
-		// - Clear the transactions array and cache
-		// - Reset the form
-		// - Navigate to another page
+		isImporting = true;
+		error = null;
 		
-		// Clear cache after successful import
-		clearCache();
-		transactions = [];
+		try {
+			const response = await fetch('/api/pending/confirm', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ batchId: currentBatchId })
+			});
+			
+			const data = await response.json();
+			
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to import transactions');
+			}
+			
+			successMessage = data.message;
+			transactions = [];
+			hasPendingData = false;
+			currentBatchId = null;
+			selectedFile = null;
+			
+		} catch (err) {
+			error = err.message || 'Failed to import transactions';
+			console.error('Import error:', err);
+		} finally {
+			isImporting = false;
+		}
 	}
 </script>
 
 <PageLayout pageTitle="Import Transactions - Shaft">
 	<PageHeader title="Import Transactions" subtitle="Upload & Review" showActions={false} />
 
-	<!-- Cache Controls -->
-	{#if hasCachedData && transactions.length === 0}
+	<!-- Pending Transactions Controls -->
+	{#if hasPendingData && transactions.length === 0}
 		<div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				<i class="fa-solid fa-database text-blue-500 text-xl"></i>
 				<div>
-					<p class="text-sm font-semibold text-blue-800">Cached Transactions Available</p>
-					<p class="text-xs text-blue-600">You have previously extracted transactions saved</p>
+					<p class="text-sm font-semibold text-blue-800">Pending Transactions Available</p>
+					<p class="text-xs text-blue-600">You have previously extracted transactions saved in database</p>
 				</div>
 			</div>
 			<div class="flex gap-2">
 				<button 
 					class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all"
-					on:click={loadFromCache}
+					on:click={loadFromDatabase}
 				>
-					<i class="fa-solid fa-download"></i> Load from Cache
+					<i class="fa-solid fa-download"></i> Load Pending
 				</button>
 				<button 
 					class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition-all"
-					on:click={clearCache}
+					on:click={clearPending}
 				>
 					<i class="fa-solid fa-trash"></i> Clear
 				</button>
@@ -365,16 +441,16 @@
 						</thead>
 						<tbody>
 							{#each transactions as transaction, i}
-							<tr class="transition-colors border-b border-gray-100 {transaction._markedForDeletion ? 'bg-gray-100 opacity-50' : 'hover:bg-primary-green/5'}">
-								<td class="py-3 px-4 text-right font-medium text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
+							<tr class="transition-colors border-b border-gray-100 {transaction.marked_for_deletion ? 'bg-gray-100 opacity-50' : 'hover:bg-primary-green/5'}">
+								<td class="py-3 px-4 text-right font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
 								<td class="py-3 px-4">
-									<div class="text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : 'text-text-secondary'}">{transaction.account}</div>
+									<div class="text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-secondary'}">{transaction.account}</div>
 								</td>
 								<td class="py-3 px-4">
-									<div class="font-medium text-sm {transaction._markedForDeletion ? 'line-through text-gray-400' : 'text-text-primary'}">{transaction.details}</div>
+									<div class="font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-primary'}">{transaction.details}</div>
 								</td>
 								<td class="py-3 px-4">
-									{#if transaction._markedForDeletion}
+									{#if transaction.marked_for_deletion}
 										<span class="text-sm text-gray-400 line-through">{transaction.category}</span>
 									{:else}
 										<CategoryDropdown 
@@ -384,18 +460,18 @@
 									{/if}
 								</td>
 								<td class="py-3 px-4 text-right">
-									<span class="{transaction._markedForDeletion ? 'text-gray-400 line-through' : transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
+									<span class="{transaction.marked_for_deletion ? 'text-gray-400 line-through' : transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
 										{transaction.amount > 0 ? '+' : ''}{formatIDR(transaction.amount)}
 									</span>
 								</td>
 								<td class="py-3 px-4">
 									<div class="flex items-center justify-center gap-1.5">
 										<button
-											class="w-8 h-8 rounded flex items-center justify-center transition-colors {transaction._markedForDeletion ? 'hover:bg-green-100 text-green-600' : 'hover:bg-red-100 text-red-600'}"
-											title={transaction._markedForDeletion ? 'Restore' : 'Mark for deletion'}
+											class="w-8 h-8 rounded flex items-center justify-center transition-colors {transaction.marked_for_deletion ? 'hover:bg-green-100 text-green-600' : 'hover:bg-red-100 text-red-600'}"
+											title={transaction.marked_for_deletion ? 'Restore' : 'Mark for deletion'}
 											on:click={() => toggleDeleteTransaction(i)}
 										>
-											<i class="fa-solid {transaction._markedForDeletion ? 'fa-rotate-left' : 'fa-trash'} text-sm"></i>
+											<i class="fa-solid {transaction.marked_for_deletion ? 'fa-rotate-left' : 'fa-trash'} text-sm"></i>
 										</button>
 									</div>
 								</td>

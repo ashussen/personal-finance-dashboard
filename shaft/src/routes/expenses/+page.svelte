@@ -5,15 +5,17 @@
 	import ExpensesBarChart from '$lib/components/ExpensesBarChart.svelte';
 	import ExpensesDonutChart from '$lib/components/ExpensesDonutChart.svelte';
 	import ExpensesTable from '$lib/components/ExpensesTable.svelte';
-	import { parseTransactionsCSV } from '$lib/utils/formatters';
 	
 	let allTransactions = [];
 	
 	onMount(async () => {
 		try {
-			const response = await fetch('/transactions.csv');
-			const csvText = await response.text();
-			allTransactions = parseTransactionsCSV(csvText);
+			const response = await fetch('/api/transactions');
+			const data = await response.json();
+			
+			if (data.success && data.transactions) {
+				allTransactions = data.transactions;
+			}
 		} catch (error) {
 			console.error('Error loading transactions:', error);
 		}
