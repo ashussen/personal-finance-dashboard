@@ -88,6 +88,12 @@ export const CATEGORY_DEFINITIONS = {
 		group: 'Financial',
 		aiInstruction: 'Salary deposits, transfers received, refunds, interest earned. Examples: salary, freelance income, investment returns, refunds, reimbursements.'
 	},
+	'Transfer': {
+		name: 'Transfer',
+		icon: 'fa-arrow-right-arrow-left',
+		group: 'Financial',
+		aiInstruction: 'Money moving between your OWN accounts. Examples: credit card payments from bank account, transfers between your own bank accounts, paying off CC balance, internal transfers. NOT for transfers to other people.'
+	},
 	'Uncategorised': {
 		name: 'Uncategorised',
 		icon: 'fa-question',
@@ -140,5 +146,17 @@ export function generateCategorizationPrompt() {
 Assign ONE category to each transaction based on the description. Available categories:
 ${categoryList}
 
-Use context clues from merchant names, transaction descriptions, and amounts to determine the most appropriate category.`;
+TRANSACTION TYPE:
+Also determine the transaction_type for each transaction:
+- "income": Money received (salary, refunds, interest, transfers FROM others)
+- "expense": Money spent on goods/services (purchases, bills, fees)
+- "transfer": Money moving between your OWN accounts (CC payments, internal bank transfers)
+
+IMPORTANT for transfers:
+- Credit card payments from bank accounts = "transfer" with category "Transfer"
+- "PEMBAYARAN KARTU KREDIT", "PAYMENT", "CC PAYMENT" = transfer
+- Transfers TO family/friends = "expense" (not transfer)
+- Transfers FROM others to you = "income"
+
+Use context clues from merchant names, transaction descriptions, and amounts to determine the most appropriate category and transaction_type.`;
 }

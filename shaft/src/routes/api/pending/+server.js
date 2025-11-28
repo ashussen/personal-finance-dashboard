@@ -3,6 +3,7 @@ import {
 	getPendingTransactions,
 	insertPendingTransactions,
 	updatePendingCategory,
+	updatePendingCategoryAndType,
 	togglePendingDeletion,
 	confirmImport,
 	clearPendingTransactions,
@@ -43,7 +44,7 @@ export async function POST({ request }) {
 /** @type {import('./$types').RequestHandler} */
 export async function PATCH({ request }) {
 	try {
-		const { id, action, category } = await request.json();
+		const { id, action, category, transaction_type } = await request.json();
 
 		if (!id) {
 			return json({ error: 'Missing id' }, { status: 400 });
@@ -56,6 +57,11 @@ export async function PATCH({ request }) {
 
 		if (action === 'updateCategory' && category) {
 			updatePendingCategory(id, category);
+			return json({ success: true });
+		}
+		
+		if (action === 'updateCategoryAndType' && category) {
+			updatePendingCategoryAndType(id, category, transaction_type);
 			return json({ success: true });
 		}
 

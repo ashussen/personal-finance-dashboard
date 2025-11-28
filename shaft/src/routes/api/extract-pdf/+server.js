@@ -33,9 +33,10 @@ export async function POST({ request }) {
 CRITICAL REQUIREMENTS:
 1. COMPLETE DETAILS: Capture the FULL transaction description including ALL lines of text. Many transactions have multi-line descriptions - you MUST include EVERY line, word, and number from the description.
 2. Extract EVERY transaction (both debit and credit)
-3. Handle Indonesian text and currency formats correctly
-4. Identify the bank name from document header (BCA, Bank Mega, Mandiri, OCBC, etc.)
-5. Extract account number if visible
+3. Extract the RUNNING BALANCE (Saldo) after each transaction - this is CRITICAL
+4. Handle Indonesian text and currency formats correctly
+5. Identify the bank name from document header (BCA, Bank Mega, Mandiri, OCBC, etc.)
+6. Extract account number if visible
 
 DATE FORMAT:
 - Use YYYY-MM-DD format
@@ -49,28 +50,39 @@ AMOUNT CONVERSION:
 - Use NEGATIVE (-) for debits/expenses (DB, withdrawals, payments)
 - Use POSITIVE (+) for credits (CR, deposits, income)
 
+RUNNING BALANCE (SALDO):
+- This is the balance shown AFTER each transaction in the statement
+- Usually labeled "Saldo", "Balance", or shown in a separate column
+- Extract as a POSITIVE number (it's the total money in account)
+- This is essential for tracking actual account balance
+
 BANK IDENTIFICATION:
 - BCA: Look for "REKENING TAHAPAN", "REKENING KARTU KREDIT", or "BCA" header
 - Bank Mega: Credit card statements or "Bank Mega" header
 - Mandiri: "Tabungan NOW", "Mandiri" header
 - OCBC: "REKENING KORAN GIRO", "OCBC" header
 
-Return ONLY a valid JSON array with this EXACT structure (NO category field):
+Return ONLY a valid JSON array with this EXACT structure:
 [
   {
     "date": "YYYY-MM-DD",
     "details": "Complete multi-line description with all text",
     "amount": -123456.00,
+    "running_balance": 5000000.00,
     "source": "Bank Name",
     "account": "account number if available"
   }
 ]
 
+IMPORTANT NOTES:
+- running_balance: The account balance AFTER this transaction (from Saldo column)
+- If running_balance is not visible for a transaction, use null
+
 Do NOT:
 - Skip any part of transaction descriptions
 - Truncate or summarize details
 - Miss any transactions
-- Add category or extra fields
+- Omit running_balance if it's visible in the statement
 
 Return ONLY the JSON array, no markdown formatting, no explanations.`;
 

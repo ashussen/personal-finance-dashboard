@@ -18,20 +18,27 @@ export async function POST({ request }) {
 		console.log('Transactions to categorize:', transactions.length);
 
 		// Build the categorization prompt
-		const promptText = `You are a financial transaction categorizer. Categorize each transaction in the provided list.
+		const promptText = `You are a financial transaction categorizer. Categorize each transaction and determine its type.
 
 ${generateCategorizationPrompt()}
 
 INSTRUCTIONS:
-1. For each transaction, analyze the "details" field to determine the most appropriate category
-2. Return the SAME transactions array with a "category" field added to each transaction
-3. Keep all existing fields (date, details, amount, source, account) unchanged
-4. Only add the "category" field
+1. For each transaction, analyze the "details" field to determine the most appropriate category and transaction_type
+2. Return the SAME transactions array with "category" and "transaction_type" fields added to each transaction
+3. Keep all existing fields (date, details, amount, source, account, running_balance) unchanged
+4. Add both "category" and "transaction_type" fields
+
+OUTPUT FORMAT for each transaction:
+{
+  ...existing fields...,
+  "category": "Category Name",
+  "transaction_type": "income" | "expense" | "transfer"
+}
 
 INPUT TRANSACTIONS:
 ${JSON.stringify(transactions, null, 2)}
 
-Return ONLY a valid JSON array with the category field added to each transaction. No markdown formatting, no explanations.`;
+Return ONLY a valid JSON array with category and transaction_type fields added. No markdown formatting, no explanations.`;
 
 		// Log the prompt
 		console.log('\n--- Categorization Prompt ---');

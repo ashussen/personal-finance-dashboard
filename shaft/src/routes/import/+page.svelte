@@ -19,6 +19,9 @@
 	// Reactive counts for transactions
 	$: toImportCount = transactions.filter(tx => !tx.marked_for_deletion).length;
 	$: markedForDeletionCount = transactions.filter(tx => tx.marked_for_deletion).length;
+	$: transferCount = transactions.filter(tx => tx.transaction_type === 'transfer' && !tx.marked_for_deletion).length;
+	$: incomeCount = transactions.filter(tx => tx.transaction_type === 'income' && !tx.marked_for_deletion).length;
+	$: expenseCount = transactions.filter(tx => tx.transaction_type === 'expense' && !tx.marked_for_deletion).length;
 	
 	onMount(() => {
 		// Check if there's pending data in database
@@ -119,10 +122,11 @@
 
 			if (data.success && data.transactions) {
 				transactions = data.transactions;
-				successMessage = `Successfully extracted ${data.transactions.length} transactions. Now categorizing...`;
 				
-				// Automatically start categorization
-				await categorizeTransactions();
+				// Save extracted transactions to pending database (uncategorized)
+				await saveToPending(data.transactions);
+				
+				successMessage = `Successfully extracted ${data.transactions.length} transactions. Click "Categorize" to auto-categorize.`;
 			} else {
 				throw new Error('Invalid response from server');
 			}
@@ -159,8 +163,8 @@
 			if (data.success && data.transactions) {
 				transactions = data.transactions;
 				
-				// Save categorized transactions to pending database
-				await saveToPending(data.transactions);
+				// Update pending transactions with categories
+				await updatePendingCategories(data.transactions);
 				
 				successMessage = `Successfully categorized ${data.transactions.length} transactions`;
 			} else {
@@ -191,6 +195,36 @@
 			}
 		} catch (err) {
 			console.error('Error saving to pending:', err);
+		}
+	}
+	
+	async function updatePendingCategories(categorizedTxs) {
+		// Update each transaction's category and transaction_type in the database
+		try {
+			for (const tx of categorizedTxs) {
+				// Find matching transaction by details and amount (since we may not have IDs from API response)
+				const matchingTx = transactions.find(t => 
+					t.details === tx.details && t.amount === tx.amount && t.date === tx.date
+				);
+				
+				if (matchingTx?.id) {
+					await fetch('/api/pending', {
+						method: 'PATCH',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ 
+							id: matchingTx.id, 
+							action: 'updateCategoryAndType', 
+							category: tx.category,
+							transaction_type: tx.transaction_type
+						})
+					});
+				}
+			}
+			// Reload to get updated data
+			await loadFromDatabase();
+		} catch (err) {
+			console.error('Error updating categories:', err);
+			throw err;
 		}
 	}
 
@@ -389,16 +423,14 @@
 				<button 
 					class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 					on:click={extractPDF}
-					disabled={isProcessing || isCategorizing}
+					disabled={isProcessing}
 				>
 					{#if isProcessing}
 						<i class="fa-solid fa-spinner fa-spin"></i>
 						Extracting...
-					{:else if isCategorizing}
-						<i class="fa-solid fa-spinner fa-spin"></i>
-						Categorizing...
 					{:else}
-						Extract & Categorize
+						<i class="fa-solid fa-file-import"></i>
+						Extract Transactions
 					{/if}
 				</button>
 			</div>
@@ -411,16 +443,16 @@
 				<h2 class="text-2xl">Review Transactions</h2>
 				{#if transactions.length > 0}
 					<button 
-						class="px-4 py-2 bg-text-black text-white rounded-lg text-sm hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+						class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 						on:click={categorizeTransactions}
 						disabled={isCategorizing}
 					>
 						{#if isCategorizing}
 							<i class="fa-solid fa-spinner fa-spin"></i>
-							Re-categorizing...
+							Categorizing...
 						{:else}
-							<i class="fa-solid fa-rotate"></i>
-							Re-categorize All
+							<i class="fa-solid fa-wand-magic-sparkles"></i>
+							Auto-Categorize
 						{/if}
 					</button>
 				{/if}
@@ -432,22 +464,29 @@
 						<thead>
 							<tr class="bg-bg-light">
 								<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Date</th>
-								<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Account</th>
+								<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Bank</th>
 								<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Details</th>
 								<th class="text-left py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Category</th>
+								<th class="text-center py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Type</th>
 								<th class="text-right py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Amount</th>
+								<th class="text-right py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Balance</th>
 								<th class="text-center py-3 px-4 text-text-secondary font-medium text-sm uppercase tracking-wide border-b border-gray-200">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each transactions as transaction, i}
-							<tr class="transition-colors border-b border-gray-100 {transaction.marked_for_deletion ? 'bg-gray-100 opacity-50' : 'hover:bg-primary-green/5'}">
-								<td class="py-3 px-4 text-right font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
+							<tr class="transition-colors border-b border-gray-100 {transaction.marked_for_deletion ? 'bg-gray-100 opacity-50' : transaction.transaction_type === 'transfer' ? 'bg-blue-50/50' : 'hover:bg-primary-green/5'}">
+								<td class="py-3 px-4 font-medium text-sm whitespace-nowrap {transaction.marked_for_deletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
 								<td class="py-3 px-4">
-									<div class="text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-secondary'}">{transaction.account}</div>
+									<div class="text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-secondary'}">
+										<div class="font-medium">{transaction.source || '-'}</div>
+										{#if transaction.account}
+											<div class="text-xs text-gray-400">{transaction.account}</div>
+										{/if}
+									</div>
 								</td>
 								<td class="py-3 px-4">
-									<div class="font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-primary'}">{transaction.details}</div>
+									<div class="font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-primary'} max-w-xs truncate" title={transaction.details}>{transaction.details}</div>
 								</td>
 								<td class="py-3 px-4">
 									{#if transaction.marked_for_deletion}
@@ -459,10 +498,34 @@
 										/>
 									{/if}
 								</td>
+								<td class="py-3 px-4 text-center">
+									{#if transaction.transaction_type === 'transfer'}
+										<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+											<i class="fa-solid fa-arrow-right-arrow-left mr-1 text-[10px]"></i> Transfer
+										</span>
+									{:else if transaction.transaction_type === 'income'}
+										<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+											<i class="fa-solid fa-arrow-down mr-1 text-[10px]"></i> Income
+										</span>
+									{:else}
+										<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+											<i class="fa-solid fa-arrow-up mr-1 text-[10px]"></i> Expense
+										</span>
+									{/if}
+								</td>
 								<td class="py-3 px-4 text-right">
 									<span class="{transaction.marked_for_deletion ? 'text-gray-400 line-through' : transaction.amount >= 0 ? 'text-green-600 font-semibold' : 'text-text-primary font-medium'} text-sm font-mono">
 										{transaction.amount > 0 ? '+' : ''}{formatIDR(transaction.amount)}
 									</span>
+								</td>
+								<td class="py-3 px-4 text-right">
+									{#if transaction.running_balance != null}
+										<span class="text-sm font-mono {transaction.marked_for_deletion ? 'text-gray-400 line-through' : 'text-text-secondary'}">
+											{formatIDR(transaction.running_balance)}
+										</span>
+									{:else}
+										<span class="text-xs text-gray-400">-</span>
+									{/if}
 								</td>
 								<td class="py-3 px-4">
 									<div class="flex items-center justify-center gap-1.5">
@@ -483,21 +546,48 @@
 			</div>
 			
 			{#if transactions.length > 0}
-				<div class="flex justify-between items-center mt-4 text-text-secondary text-sm">
-					<div class="text-sm">
-						Showing <span class="font-semibold text-text-black">{transactions.length}</span> transactions
-						{#if markedForDeletionCount > 0}
-							<span class="text-red-600">({markedForDeletionCount} marked for deletion, {toImportCount} to import)</span>
-						{/if}
-					</div>
-					<button 
-						class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-						on:click={confirmImport}
-						disabled={toImportCount === 0}
-					>
-						Confirm & Import ({toImportCount})
-					</button>
+			<!-- Summary Stats -->
+			<div class="mt-4 mb-4 flex flex-wrap gap-4">
+				<div class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+					<span class="text-sm text-gray-600">Total:</span>
+					<span class="font-semibold">{toImportCount}</span>
 				</div>
+				<div class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+					<i class="fa-solid fa-arrow-up text-gray-500 text-xs"></i>
+					<span class="text-sm text-gray-600">Expenses:</span>
+					<span class="font-semibold">{expenseCount}</span>
+				</div>
+				<div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 rounded-lg">
+					<i class="fa-solid fa-arrow-down text-green-600 text-xs"></i>
+					<span class="text-sm text-green-700">Income:</span>
+					<span class="font-semibold text-green-700">{incomeCount}</span>
+				</div>
+				{#if transferCount > 0}
+					<div class="flex items-center gap-2 px-3 py-1.5 bg-blue-100 rounded-lg">
+						<i class="fa-solid fa-arrow-right-arrow-left text-blue-600 text-xs"></i>
+						<span class="text-sm text-blue-700">Transfers:</span>
+						<span class="font-semibold text-blue-700">{transferCount}</span>
+						<span class="text-xs text-blue-500">(excluded from expenses)</span>
+					</div>
+				{/if}
+				{#if markedForDeletionCount > 0}
+					<div class="flex items-center gap-2 px-3 py-1.5 bg-red-100 rounded-lg">
+						<i class="fa-solid fa-trash text-red-500 text-xs"></i>
+						<span class="text-sm text-red-600">To Delete:</span>
+						<span class="font-semibold text-red-600">{markedForDeletionCount}</span>
+					</div>
+				{/if}
+			</div>
+
+			<div class="flex justify-end">
+				<button 
+					class="px-6 py-2.5 bg-text-black text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+					on:click={confirmImport}
+					disabled={toImportCount === 0}
+				>
+					Confirm & Import ({toImportCount})
+				</button>
+			</div>
 			{:else}
 				<div class="text-center py-8 text-text-secondary">
 					<i class="fa-solid fa-inbox text-4xl mb-3"></i>
