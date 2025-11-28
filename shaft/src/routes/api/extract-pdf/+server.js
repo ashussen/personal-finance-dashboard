@@ -38,6 +38,13 @@ CRITICAL REQUIREMENTS:
 5. Identify the bank name from document header (BCA, Bank Mega, Mandiri, OCBC, etc.)
 6. Extract account number if visible
 
+PAGE BREAK HANDLING (VERY IMPORTANT):
+- Transactions may be SPLIT across page breaks
+- If a transaction starts at the bottom of one page and continues at the top of the next page, MERGE them into ONE transaction
+- Look for continuation patterns: same date, description continues without a new date/amount
+- The description text before and after page break should be COMBINED into one "details" field
+- Only count it as ONE transaction with ONE amount and ONE running_balance
+
 DATE FORMAT:
 - Use YYYY-MM-DD format
 - If only day/month shown (e.g., 06/06), use 2025 as year → 2025-06-06
