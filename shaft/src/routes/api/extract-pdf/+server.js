@@ -86,11 +86,6 @@ Do NOT:
 
 Return ONLY the JSON array, no markdown formatting, no explanations.`;
 
-		// Log the complete prompt
-		console.log('\n--- Extraction Prompt ---');
-		console.log(promptText);
-		console.log('--- End of Prompt ---\n');
-
 		// Use the Responses API with the uploaded file
 		const response = await fetch('https://api.openai.com/v1/responses', {
 			method: 'POST',
@@ -147,6 +142,9 @@ Return ONLY the JSON array, no markdown formatting, no explanations.`;
 		} else if (jsonText.startsWith('```')) {
 			jsonText = jsonText.replace(/^```\n/, '').replace(/\n```$/, '');
 		}
+		
+		// Fix invalid JSON: remove leading + signs from numbers (e.g., +50000.00 -> 50000.00)
+		jsonText = jsonText.replace(/:\s*\+(\d)/g, ': $1');
 		
 		// Parse the JSON
 		const transactions = JSON.parse(jsonText);
