@@ -475,7 +475,7 @@
 						</thead>
 						<tbody>
 							{#each transactions as transaction, i}
-							<tr class="transition-colors border-b border-gray-100 {transaction.marked_for_deletion ? 'bg-gray-100 opacity-50' : transaction.transaction_type === 'transfer' ? 'bg-blue-50/50' : 'hover:bg-primary-green/5'}">
+							<tr class="transition-colors border-b border-gray-100 align-top {transaction.marked_for_deletion ? 'bg-gray-100 opacity-50' : transaction.transaction_type === 'transfer' ? 'bg-blue-50/50' : 'hover:bg-primary-green/5'}">
 								<td class="py-3 px-4 font-medium text-sm whitespace-nowrap {transaction.marked_for_deletion ? 'line-through text-gray-400' : ''}">{formatDateID(transaction.date)}</td>
 								<td class="py-3 px-4">
 									<div class="text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-secondary'}">
@@ -486,7 +486,7 @@
 									</div>
 								</td>
 								<td class="py-3 px-4">
-									<div class="font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-primary'} max-w-xs truncate" title={transaction.details}>{transaction.details}</div>
+									<div class="font-medium text-sm {transaction.marked_for_deletion ? 'line-through text-gray-400' : 'text-text-primary'} whitespace-pre-wrap">{transaction.details}</div>
 								</td>
 								<td class="py-3 px-4">
 									{#if transaction.marked_for_deletion}

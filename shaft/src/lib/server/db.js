@@ -304,17 +304,17 @@ export function getDailyBalances() {
 // ============================================
 
 /**
- * Get all pending transactions
+ * Get all pending transactions (sorted oldest first for running balance display)
  */
 export function getPendingTransactions(batchId = null) {
 	if (batchId) {
 		return db.prepare(`
 			SELECT * FROM pending_transactions 
 			WHERE import_batch_id = ?
-			ORDER BY date DESC
+			ORDER BY date ASC, id ASC
 		`).all(batchId);
 	}
-	return db.prepare('SELECT * FROM pending_transactions ORDER BY created_at DESC, date DESC').all();
+	return db.prepare('SELECT * FROM pending_transactions ORDER BY date ASC, id ASC').all();
 }
 
 /**

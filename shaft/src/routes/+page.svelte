@@ -28,7 +28,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('/api/transactions?sortAsc=true');
+			const response = await fetch('/api/transactions');
 			const data = await response.json();
 			
 			if (data.success && data.transactions) {
@@ -260,6 +260,6 @@
 		</MetricCard>
 	</div>
 
-	<!-- Transactions Table -->
+	<!-- Transactions Table (most recent first) -->
 	<TransactionsTable transactions={allTransactions} />
 </PageLayout>
