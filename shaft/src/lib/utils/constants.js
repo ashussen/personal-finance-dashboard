@@ -22,83 +22,120 @@ export const TIME_PERIOD_DAYS = {
  * This structure is used by both the frontend UI and the API for consistent categorization
  */
 export const CATEGORY_DEFINITIONS = {
-	'Dining': {
-		name: 'Dining',
-		icon: 'fa-utensils',
-		group: 'Essential',
-		aiInstruction: 'Restaurants, cafes, food delivery, eating out (not groceries). Examples: McDonald\'s, Starbucks, GoFood, GrabFood, local restaurants.'
+	// === ESSENTIALS ===
+	'Housing': {
+		name: 'Housing',
+		icon: 'fa-house',
+		group: 'Essentials',
+		aiInstruction: 'Rent, mortgage payments, property maintenance, property tax, HOA fees, home repairs. Examples: rent payment, kos/kontrakan, property tax, home maintenance.'
 	},
-	'Groceries': {
-		name: 'Groceries',
-		icon: 'fa-basket-shopping',
-		group: 'Essential',
-		aiInstruction: 'Supermarkets, food stores, grocery shopping. Examples: Indomaret, Alfamart, Ranch Market, Carrefour, Hypermart, fresh markets.'
+	'Utilities': {
+		name: 'Utilities',
+		icon: 'fa-bolt',
+		group: 'Essentials',
+		aiInstruction: 'Electricity, water, gas, internet, mobile phone bills. Examples: PLN, PDAM, PGN, Indihome, Telkomsel, XL, by.U, Biznet.'
 	},
-	'Transport': {
-		name: 'Transport',
+	'Transportation': {
+		name: 'Transportation',
 		icon: 'fa-car',
-		group: 'Essential',
-		aiInstruction: 'Transportation, fuel, parking, tolls, ride-sharing. Examples: Grab, Gojek, gas stations (Pertamina, Shell), parking fees, toll roads, public transport.'
+		group: 'Essentials',
+		aiInstruction: 'Fuel, tolls, parking, public transit, ride-hailing, vehicle service/insurance. Examples: Pertamina, Shell, toll roads, Grab, Gojek, TransJakarta, MRT, car service, STNK.'
 	},
-	'Bills & Fees': {
-		name: 'Bills & Fees',
+	'Food': {
+		name: 'Food',
+		icon: 'fa-utensils',
+		group: 'Essentials',
+		aiInstruction: 'Groceries, dining out, coffee/snacks, food delivery fees. Examples: Indomaret, Alfamart, restaurants, Starbucks, GoFood, GrabFood, Shopee Food.'
+	},
+	'Health': {
+		name: 'Health',
+		icon: 'fa-heart-pulse',
+		group: 'Essentials',
+		aiInstruction: 'Medical expenses, dental, pharmacy, therapy, fitness memberships. Examples: hospital, clinic, apotek, gym membership, doctor visits, BPJS top-up.'
+	},
+	'Insurance': {
+		name: 'Insurance',
+		icon: 'fa-shield-halved',
+		group: 'Essentials',
+		aiInstruction: 'Health insurance, life insurance, property insurance, vehicle insurance, travel insurance premiums. Examples: Prudential, AXA, Allianz, Manulife, car insurance.'
+	},
+
+	// === FINANCIAL ===
+	'Debt & Fees': {
+		name: 'Debt & Fees',
 		icon: 'fa-file-invoice-dollar',
-		group: 'Essential',
-		aiInstruction: 'Utilities, phone bills, internet, bank fees, subscriptions, insurance. Examples: PLN (electricity), PDAM (water), Telkom, XL, Indihome, Netflix, Spotify, bank admin fees.'
-	},
-	'Family': {
-		name: 'Family',
-		icon: 'fa-people-roof',
-		group: 'Personal',
-		aiInstruction: 'Family support, transfers to family members, family-related expenses. Examples: money sent to parents, siblings, children, family allowances.'
-	},
-	'Gifts': {
-		name: 'Gifts',
-		icon: 'fa-gift',
-		group: 'Personal',
-		aiInstruction: 'Presents, donations to individuals, gift purchases. Examples: birthday gifts, wedding gifts, presents for friends.'
-	},
-	'Travel': {
-		name: 'Travel',
-		icon: 'fa-plane',
-		group: 'Personal',
-		aiInstruction: 'Hotels, flights, travel bookings, vacation expenses. Examples: Traveloka, Tiket.com, hotels, airlines, vacation activities.'
-	},
-	'Offering': {
-		name: 'Offering',
-		icon: 'fa-hand-holding-heart',
-		group: 'Personal',
-		aiInstruction: 'Religious offerings, church/mosque donations, tithes, charitable giving. Examples: church offerings, mosque donations, zakat, religious contributions.'
-	},
-	'Entertainment/Shopping': {
-		name: 'Entertainment/Shopping',
-		icon: 'fa-bag-shopping',
-		group: 'Personal',
-		aiInstruction: 'Shopping, entertainment, movies, hobbies, retail stores (not dining or groceries). Examples: clothing stores, electronics, cinema, concerts, hobbies, online shopping (Tokopedia, Shopee, Lazada).'
-	},
-	'Work': {
-		name: 'Work',
-		icon: 'fa-briefcase',
 		group: 'Financial',
-		aiInstruction: 'Work-related expenses, business purchases, professional services. Examples: office supplies, business meals, professional subscriptions, work equipment.'
+		aiInstruction: 'Loan payments, credit card interest, bank fees, admin fees. Examples: KTA payment, mortgage installment, bank admin fee, late fees, interest charges.'
+	},
+	'Savings & Investing': {
+		name: 'Savings & Investing',
+		icon: 'fa-piggy-bank',
+		group: 'Financial',
+		aiInstruction: 'Emergency fund contributions, retirement savings, brokerage/crypto investments, education fund. Examples: reksadana, deposito, Bibit, Bareksa, crypto purchase, DPLK.'
 	},
 	'Income': {
 		name: 'Income',
 		icon: 'fa-money-bill-trend-up',
 		group: 'Financial',
-		aiInstruction: 'Salary deposits, transfers received, refunds, interest earned. Examples: salary, freelance income, investment returns, refunds, reimbursements.'
+		aiInstruction: 'Salary deposits, freelance income, refunds, interest earned, dividends. Examples: salary, gaji, bonus, investment returns, cashback, reimbursements.'
 	},
 	'Transfer': {
 		name: 'Transfer',
 		icon: 'fa-arrow-right-arrow-left',
 		group: 'Financial',
-		aiInstruction: 'Money moving between your OWN accounts. Examples: credit card payments from bank account, transfers between your own bank accounts, paying off CC balance, internal transfers. NOT for transfers to other people.'
+		aiInstruction: 'Money moving between your OWN accounts. Examples: credit card payments from bank account, transfers between your own bank accounts, paying off CC balance. NOT for transfers to other people.'
 	},
-	'Uncategorised': {
-		name: 'Uncategorised',
+	'Taxes': {
+		name: 'Taxes',
+		icon: 'fa-landmark',
+		group: 'Financial',
+		aiInstruction: 'Income tax payments, VAT/sales tax, tax filing fees. Examples: PPh, PPN, tax consultant fees, e-filing fees.'
+	},
+
+	// === LIFESTYLE ===
+	'Personal & Shopping': {
+		name: 'Personal & Shopping',
+		icon: 'fa-bag-shopping',
+		group: 'Lifestyle',
+		aiInstruction: 'Clothing, personal care, grooming, household supplies, general shopping. Examples: clothing stores, salon, barber, skincare, Tokopedia, Shopee, household items.'
+	},
+	'Entertainment & Subscriptions': {
+		name: 'Entertainment & Subscriptions',
+		icon: 'fa-film',
+		group: 'Lifestyle',
+		aiInstruction: 'Streaming services, apps, games, events, books, hobbies. Examples: Netflix, Spotify, YouTube Premium, cinema, concerts, books, gaming.'
+	},
+	'Family & Giving': {
+		name: 'Family & Giving',
+		icon: 'fa-hand-holding-heart',
+		group: 'Lifestyle',
+		aiInstruction: 'Childcare, education expenses, gifts, donations, religious offerings, family support. Examples: school fees, tutoring, birthday gifts, church/mosque donations, zakat, money to parents.'
+	},
+	'Travel': {
+		name: 'Travel',
+		icon: 'fa-plane',
+		group: 'Lifestyle',
+		aiInstruction: 'Flights, hotels, visas, travel insurance, vacation expenses. Examples: Traveloka, Tiket.com, airlines, Airbnb, hotels, visa fees.'
+	},
+
+	// === OTHER ===
+	'Business': {
+		name: 'Business',
+		icon: 'fa-briefcase',
+		group: 'Other',
+		aiInstruction: 'Business expenses on personal card, reimbursables, software, professional services. Examples: work equipment, business meals, SaaS subscriptions, professional tools.'
+	},
+	'Miscellaneous': {
+		name: 'Miscellaneous',
+		icon: 'fa-ellipsis',
+		group: 'Other',
+		aiInstruction: 'One-off expenses, adjustments, anything that doesn\'t clearly fit other categories.'
+	},
+	'Uncategorized': {
+		name: 'Uncategorized',
 		icon: 'fa-question',
 		group: 'Other',
-		aiInstruction: 'Transactions that don\'t clearly fit other categories or are ambiguous.'
+		aiInstruction: 'Transactions that have not been categorized yet. Use this as a placeholder until properly categorized.'
 	}
 };
 
@@ -108,21 +145,21 @@ export const CATEGORIES = Object.keys(CATEGORY_DEFINITIONS);
 // Grouped categories for UI display
 export const CATEGORY_GROUPS = [
 	{
-		label: 'Essential',
+		label: 'Essentials',
 		categories: CATEGORIES
-			.filter(cat => CATEGORY_DEFINITIONS[cat].group === 'Essential')
-			.map(cat => ({ name: cat, icon: CATEGORY_DEFINITIONS[cat].icon }))
-	},
-	{
-		label: 'Personal',
-		categories: CATEGORIES
-			.filter(cat => CATEGORY_DEFINITIONS[cat].group === 'Personal')
+			.filter(cat => CATEGORY_DEFINITIONS[cat].group === 'Essentials')
 			.map(cat => ({ name: cat, icon: CATEGORY_DEFINITIONS[cat].icon }))
 	},
 	{
 		label: 'Financial',
 		categories: CATEGORIES
 			.filter(cat => CATEGORY_DEFINITIONS[cat].group === 'Financial')
+			.map(cat => ({ name: cat, icon: CATEGORY_DEFINITIONS[cat].icon }))
+	},
+	{
+		label: 'Lifestyle',
+		categories: CATEGORIES
+			.filter(cat => CATEGORY_DEFINITIONS[cat].group === 'Lifestyle')
 			.map(cat => ({ name: cat, icon: CATEGORY_DEFINITIONS[cat].icon }))
 	},
 	{

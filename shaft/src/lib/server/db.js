@@ -420,7 +420,7 @@ export function confirmImport(batchId = null) {
 				tx.amount, 
 				tx.account, 
 				tx.source, 
-				tx.category || 'Uncategorised',
+				tx.category || 'Uncategorized',
 				accountId || null,
 				tx.running_balance ?? null,
 				tx.transaction_type || 'expense'

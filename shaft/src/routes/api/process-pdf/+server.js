@@ -65,7 +65,7 @@ Return ONLY a valid JSON array with this EXACT structure:
     "date": "YYYY-MM-DD",
     "details": "Complete multi-line description with all text",
     "amount": -123456.00,
-    "category": "Groceries",
+    "category": "Food",
     "source": "Bank Name",
     "account": "account number if available"
   }

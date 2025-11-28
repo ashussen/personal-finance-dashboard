@@ -9,18 +9,24 @@
 	
 	// Keyboard shortcut mapping
 	const keyboardShortcuts = {
-		'd': 'Dining',
-		'g': 'Groceries',
-		't': 'Transport',
-		'b': 'Bills & Fees',
-		'f': 'Family',
+		'h': 'Housing',
+		'u': 'Utilities',
+		't': 'Transportation',
+		'f': 'Food',
+		'l': 'Health', // L for heaLth
+		'n': 'Insurance', // N for iNsurance
+		'd': 'Debt & Fees',
+		's': 'Savings & Investing',
 		'i': 'Income',
-		'o': 'Offering',
-		'w': 'Work',
-		'e': 'Entertainment/Shopping',
-		's': 'Gifts', // 's' for preS ents (g is taken by Groceries)
-		'v': 'Travel', // 'v' for traVel (t is taken by Transport)
-		'u': 'Uncategorised'
+		'r': 'Transfer', // R for tRansfer
+		'x': 'Taxes',
+		'p': 'Personal & Shopping',
+		'e': 'Entertainment & Subscriptions',
+		'g': 'Family & Giving',
+		'v': 'Travel', // V for traVel
+		'b': 'Business',
+		'm': 'Miscellaneous',
+		'?': 'Uncategorized'
 	};
 	
 	function toggleDropdown() {
